@@ -1,0 +1,113 @@
+.dashboard {
+  max-width: 900px;
+  margin: 2.5rem auto;
+  padding: 0 1.5rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.dashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.dashboard-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--paper-dim);
+}
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.metric-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+}
+
+.metric-label {
+  color: var(--paper-dim);
+  font-size: 0.85rem;
+  margin: 0 0 0.5rem;
+}
+
+.metric-value {
+  font-family: var(--font-mono);
+  font-size: 2rem;
+  color: var(--teal);
+  margin: 0;
+}
+
+.metric-unit {
+  font-size: 1rem;
+  color: var(--paper-dim);
+  margin-left: 0.3rem;
+}
+
+.dashboard-panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+}
+
+.dashboard-panel h3 { margin-bottom: 1rem; font-size: 1.1rem; }
+
+.history-table {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.88rem;
+}
+
+.history-row {
+  display: grid;
+  grid-template-columns: 0.9fr 1fr 1.3fr 0.9fr 1fr;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid var(--line);
+  color: var(--paper-dim);
+}
+
+.history-row:last-child { border-bottom: none; }
+
+.history-head {
+  color: var(--paper-dim);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.history-row:not(.history-head) span:nth-child(3) { color: var(--paper); }
+
+.risk-chip {
+  justify-self: start;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  border-radius: 999px;
+  padding: 0.2rem 0.6rem;
+  width: fit-content;
+}
+
+.risk-low { color: var(--teal); border: 1px solid var(--teal); }
+.risk-medium { color: var(--amber); border: 1px solid var(--amber); }
+.risk-high { color: #e26d5a; border: 1px solid #e26d5a; }
+
+@media (max-width: 700px) {
+  .metric-grid { grid-template-columns: 1fr; }
+  .history-row { grid-template-columns: 1fr 1fr; row-gap: 0.2rem; }
+  .history-head { display: none; }
+}
