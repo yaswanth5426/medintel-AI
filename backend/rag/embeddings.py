@@ -1,3 +1,5 @@
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 from sentence_transformers import SentenceTransformer
 from ingest import load_documents, split_documents
 
@@ -41,6 +43,7 @@ def generate_embeddings(chunks):
 
     embeddings = model.encode(
         texts,
+        batch_size=32,
         show_progress_bar=True,
         convert_to_numpy=True
     )
@@ -48,6 +51,7 @@ def generate_embeddings(chunks):
     print("\nEmbeddings generated successfully!")
     print(f"Total Embeddings : {len(embeddings)}")
     print(f"Embedding Shape  : {embeddings.shape}")
+    print(f"Embedding: {embeddings[0]}- {texts[0]}")
 
     return embeddings, texts
 
