@@ -1,0 +1,17 @@
+# Core API (needed for today's skeleton)
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+pydantic==2.10.4
+python-dotenv==1.0.1
+python-multipart==0.0.20
+
+# Added by Member 3 in later days as backend/pdf_processing, backend/database
+# and backend/reports get implemented — listed here so the file doubles as a
+# roadmap. Uncomment as each module lands.
+# pymongo==4.10.1
+# PyMuPDF==1.25.1
+# pytesseract==0.3.13
+# reportlab==4.2.5
+
+# Owned by other members — do not add ML/RAG deps here, they belong in
+# backend/ml/ and backend/rag/'s own requirements.

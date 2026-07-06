@@ -1,1 +1,3 @@
-# AI-Healthcare-Assistant
+# MedIntel AI
+
+AI-powered
