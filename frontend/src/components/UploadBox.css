@@ -1,0 +1,48 @@
+.upload-box {
+  border: 1.5px dashed var(--line);
+  border-radius: var(--radius);
+  padding: 3rem 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.upload-box:hover, .upload-box.drag-over {
+  border-color: var(--amber);
+  background: var(--panel);
+}
+
+.upload-cta { font-size: 1rem; margin: 0 0 0.4rem; }
+
+.upload-filename {
+  font-family: var(--font-mono);
+  color: var(--teal);
+  margin: 0 0 0.4rem;
+}
+
+.upload-hint {
+  color: var(--paper-dim);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.upload-box.has-file {
+  border-style: solid;
+  border-color: var(--teal);
+}
+
+.upload-clear {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--paper-dim);
+  text-decoration: underline;
+  font-size: 0.85rem;
+}
+.upload-clear:hover { color: var(--paper); }
+
+.upload-error {
+  color: #e26d5a;
+  font-size: 0.82rem;
+  margin: 0.6rem 0 0;
+}

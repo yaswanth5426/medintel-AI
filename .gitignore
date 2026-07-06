@@ -1,0 +1,17 @@
+# Python (backend)
+__pycache__/
+*.pyc
+venv/
+.venv/
+env/
+*.egg-info/
+
+# Environment variables — never commit real secrets
+.env
+backend/.env
+frontend/.env
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/

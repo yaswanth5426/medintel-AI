@@ -1,5 +1,5 @@
 def main():
-    print("Hello from medintel-ai!")
+    print("Hello from medintel-ai-1!")
 
 
 if __name__ == "__main__":
