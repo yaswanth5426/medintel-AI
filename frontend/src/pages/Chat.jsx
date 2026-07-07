@@ -32,13 +32,20 @@ export default function Chat() {
     setInput("");
     setIsTyping(true);
 
+    // The backend's ChatRequest only takes a single "question" field, so
+    // fold the selected disease context into the question itself rather
+    // than dropping the pill selector.
+    const question = context === "General" ? text : `[${context}] ${text}`;
+
     try {
-      const data = await sendChatMessage({ message: text, context });
-      setMessages((prev) => [...prev, { sender: "bot", text: data.reply }]);
+      const data = await sendChatMessage(question);
+      setMessages((prev) => [
+        ...prev,
+        { sender: "bot", text: data.answer, sources: data.sources },
+      ]);
     } catch {
-      // Backend not running yet / request failed — degrade gracefully
-      // instead of leaving the user stuck. Real answers come from the
-      // GenAI engineer's RAG + Gemini pipeline in backend/rag/.
+      // Backend not reachable at all (not even the dummy fallback) —
+      // degrade gracefully instead of leaving the user stuck.
       setMessages((prev) => [
         ...prev,
         { sender: "bot", text: "(offline) Backend isn't reachable — this is a placeholder reply." },
@@ -72,7 +79,7 @@ export default function Chat() {
 
       <div className="chat-window">
         {messages.map((m, i) => (
-          <ChatBubble key={i} text={m.text} sender={m.sender} />
+          <ChatBubble key={i} text={m.text} sender={m.sender} sources={m.sources} />
         ))}
         {isTyping && <ChatBubble sender="bot" typing />}
         <div ref={endRef} />

@@ -18,11 +18,13 @@ export function predictDisease(payload) {
 }
 
 /**
- * POST /chat — medical Q&A / symptom chat (dummy response for now).
- * Real implementation lives in backend/rag/ (owned by the GenAI engineer).
+ * POST /chat/ — medical Q&A / symptom chat.
+ * Backed by the GenAI engineer's RAG + Gemini pipeline in backend/rag/,
+ * with an automatic dummy fallback (see backend/main.py) while that isn't
+ * configured locally. Request/response shape: { question } -> { answer, sources }.
  */
-export function sendChatMessage(payload) {
-  return api.post('/chat', payload).then((res) => res.data);
+export function sendChatMessage(question) {
+  return api.post('/chat/', { question }).then((res) => res.data);
 }
 
 export default api;
