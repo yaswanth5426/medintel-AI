@@ -1,8 +1,10 @@
+# pyrefly: ignore [missing-import]
 import joblib
+# pyrefly: ignore [missing-import]
 import numpy as np
-diabetes_model = joblib.load("backend/ml/models/xgboost_diabetes_model.pkl")
-heart_model = joblib.load("backend/ml/models/xgboost_heart_model.pkl")
-kidney_model = joblib.load("backend/ml/models/xgboost_kidney_model.pkl")
+diabetes_model = joblib.load("backend/ml/models/diabetes_model.pkl")
+heart_model = joblib.load("backend/ml/models/heart_model.pkl")
+kidney_model = joblib.load("backend/ml/models/ckd_model.pkl")
 
 def predict_diabetes(features):
     features = np.array(features).reshape(1, -1)
@@ -64,17 +66,4 @@ def predict_kidney(features):
     }
 
 
-from backend.ml.predict import predict_diabetes
 
-sample = [
-    6,
-    148,
-    72,
-    35,
-    0,
-    33.6,
-    0.627,
-    50
-]
-
-print(predict_diabetes(sample))

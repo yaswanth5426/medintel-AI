@@ -1,4 +1,6 @@
+# pyrefly: ignore [missing-import]
 import joblib
+# pyrefly: ignore [missing-import]
 import shap
 import pandas as pd
 
@@ -9,7 +11,7 @@ import pandas as pd
 
 MODELS = {
     "diabetes": {
-        "path": "backend/ml/models/xgboost_diabetes_model.pkl",
+        "path": "backend/ml/models/diabetes_model.pkl",
         "features": [
             "Pregnancies",
             "Glucose",
@@ -23,7 +25,7 @@ MODELS = {
     },
 
     "heart": {
-        "path": "backend/ml/models/xgboost_heart_model.pkl",
+        "path": "backend/ml/models/heart_model.pkl",
         "features": [
             "age",
             "sex",
@@ -42,7 +44,7 @@ MODELS = {
     },
 
     "kidney": {
-        "path": "backend/ml/models/xgboost_kidney_model.pkl",
+        "path": "backend/ml/models/ckd_model.pkl",
         "features": [
             "age",
             "bp",

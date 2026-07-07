@@ -1,3 +1,4 @@
+# pyrefly: ignore [missing-import]
 import joblib
 import pandas as pd
 
@@ -56,7 +57,7 @@ def evaluate_model(model_path, dataset_path, target_column):
 # ================= Diabetes =================
 
 diabetes_results = evaluate_model(
-    "backend/ml/models/xgboost_diabetes_model.pkl",
+    "backend/ml/models/diabetes_model.pkl",
     "datasets/processed_diabetes.csv",
     "Outcome"
 )
@@ -65,7 +66,7 @@ diabetes_results = evaluate_model(
 # ================= Heart Disease =================
 
 heart_results = evaluate_model(
-    "backend/ml/models/xgboost_heart_model.pkl",
+    "backend/ml/models/heart_model.pkl",
     "datasets/processed_heart.csv",
     "target"
 )
@@ -74,7 +75,7 @@ heart_results = evaluate_model(
 # ================= Kidney Disease =================
 
 kidney_results = evaluate_model(
-    "backend/ml/models/xgboost_kidney_model.pkl",
+    "backend/ml/models/ckd_model.pkl",
     "datasets/processed_kidney.csv",
     "classification"
 )
