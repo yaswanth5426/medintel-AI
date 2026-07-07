@@ -7,30 +7,55 @@ from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings
 
 
-# Load embedding model only once
-embedding_model = HuggingFaceEmbeddings(
-    model_name="sentence-transformers/all-MiniLM-L6-v2"
-)
+# Global variables
+embedding_model = None
+vector_store = None
 
 
-# Load FAISS only once
-faiss_path = Path(__file__).parent / "faiss_index"
-
-vector_store = FAISS.load_local(
-    folder_path=str(faiss_path),
-    embeddings=embedding_model,
-    allow_dangerous_deserialization=True
-)
-
-
-def retrieve_documents(query, k=3):
+def load_vector_store():
     """
-    Retrieve the top-k most relevant chunks.
+    Load the embedding model and FAISS index only once.
     """
 
-    results = vector_store.similarity_search_with_score(
+    global embedding_model
+    global vector_store
+
+    if vector_store is None:
+
+        print("Loading embedding model...")
+
+        embedding_model = HuggingFaceEmbeddings(
+            model_name="sentence-transformers/all-MiniLM-L6-v2"
+        )
+
+        print("Embedding model loaded.")
+
+        faiss_path = Path(__file__).parent / "faiss_index"
+
+        print("Loading FAISS index...")
+
+        vector_store = FAISS.load_local(
+            folder_path=str(faiss_path),
+            embeddings=embedding_model,
+            allow_dangerous_deserialization=True
+        )
+
+        print("FAISS index loaded.")
+
+    return vector_store
+
+
+def retrieve_documents(query: str, k: int = 3):
+    """
+    Retrieve the top-k relevant documents.
+    """
+
+    db = load_vector_store()
+
+    results = db.max_marginal_relevance_search(
         query=query,
-        k=k
+        k=k,
+        fetch_k=10
     )
 
     return results
@@ -38,19 +63,23 @@ def retrieve_documents(query, k=3):
 
 if __name__ == "__main__":
 
-    question = input("\nEnter your medical question: ")
+    while True:
 
-    docs = retrieve_documents(question)
+        question = input("\nEnter your medical question: ")
 
-    print("\n" + "=" * 80)
+        if question.lower() == "exit":
+            break
 
-    for i, (doc, score) in enumerate(docs, start=1):
+        docs = retrieve_documents(question)
 
-        print("=" * 70)
-        print(f"Result {i}")
-        print(f"Similarity Score : {score:.4f}")
-        print(f"Source : {doc.metadata['source'].split('\\\\')[-1]}")
-        print(f"Page : {doc.metadata['page'] + 1}")
+        print("\n" + "=" * 80)
 
-        print()
-        print(doc.page_content)
+        for i, doc in enumerate(docs, start=1):
+
+            print("=" * 70)
+            print(f"Result {i}")
+            print(f"Source : {Path(doc.metadata['source']).name}")
+            print(f"Page : {doc.metadata['page'] + 1}")
+            print()
+            print(doc.page_content)
+            print()
