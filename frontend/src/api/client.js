@@ -27,4 +27,16 @@ export function sendChatMessage(question) {
   return api.post('/chat/', { question }).then((res) => res.data);
 }
 
+/**
+ * POST /upload — send a selected medical report PDF to the backend.
+ * Placeholder response for now (backend/routers/upload.py) — real PDF
+ * parsing belongs to backend/pdf_processing/ and isn't implemented yet.
+ */
+export function uploadReport(file) {
+  const formData = new FormData();
+  formData.append('file', file);
+  // Let axios set the multipart Content-Type (with boundary) itself.
+  return api.post('/upload', formData).then((res) => res.data);
+}
+
 export default api;

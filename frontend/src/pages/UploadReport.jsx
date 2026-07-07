@@ -2,10 +2,43 @@ import './UploadReport.css';
 
 import { useState } from 'react';
 
+import { uploadReport } from '../api/client';
 import UploadBox from '../components/UploadBox';
+
+const STATUS = {
+  IDLE: 'idle',
+  UPLOADING: 'uploading',
+  SUCCESS: 'success',
+  ERROR: 'error',
+};
 
 export default function UploadReport() {
   const [file, setFile] = useState(null);
+  const [status, setStatus] = useState(STATUS.IDLE);
+  const [result, setResult] = useState(null);
+
+  // Per the intended flow — selecting a PDF sends it straight to the
+  // backend, no separate "analyze" click needed.
+  const handleFileSelect = async (selected) => {
+    setFile(selected);
+
+    if (!selected) {
+      setStatus(STATUS.IDLE);
+      setResult(null);
+      return;
+    }
+
+    setStatus(STATUS.UPLOADING);
+    setResult(null);
+
+    try {
+      const data = await uploadReport(selected);
+      setResult(data);
+      setStatus(STATUS.SUCCESS);
+    } catch {
+      setStatus(STATUS.ERROR);
+    }
+  };
 
   return (
     <section className="upload-page">
@@ -16,18 +49,27 @@ export default function UploadReport() {
         prediction model used for symptom chats.
       </p>
 
-      <UploadBox file={file} onFileSelect={setFile} />
+      <UploadBox file={file} onFileSelect={handleFileSelect} />
 
-      <div className="upload-page-actions">
-        <button className="btn btn-primary" disabled={!file} type="button">
-          Analyze report
-        </button>
-        <span className="upload-page-note">
-          {file
-            ? "Analysis pipeline isn't wired up yet — this button is a placeholder."
-            : "Choose a PDF above to enable analysis."}
-        </span>
-      </div>
+      {status !== STATUS.IDLE && (
+        <div className={`upload-status upload-status-${status}`}>
+          {status === STATUS.UPLOADING && (
+            <>
+              <span className="upload-status-dot" />
+              Sending to the backend…
+            </>
+          )}
+          {status === STATUS.SUCCESS && result && (
+            <>
+              <strong>{result.filename}</strong> received (
+              {(result.size_bytes / 1024).toFixed(1)} KB). {result.note}
+            </>
+          )}
+          {status === STATUS.ERROR && (
+            "Couldn't reach the backend — make sure the API server is running, then try selecting the file again."
+          )}
+        </div>
+      )}
 
       <div className="upload-page-steps">
         <h3>What happens next</h3>
