@@ -39,4 +39,13 @@ export function uploadReport(file) {
   return api.post('/upload', formData).then((res) => res.data);
 }
 
+/**
+ * GET /history — prediction history for the Dashboard.
+ * Placeholder data for now (backend/routers/history.py) — real persistence
+ * belongs to backend/database/ (MongoDB) and isn't implemented yet.
+ */
+export function getHistory() {
+  return api.get('/history').then((res) => res.data);
+}
+
 export default api;

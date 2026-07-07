@@ -5,6 +5,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { HiOutlinePaperAirplane } from 'react-icons/hi2';
 
 import { sendChatMessage } from '../api/client';
 import ChatBubble from '../components/ChatBubble';
@@ -62,7 +63,10 @@ export default function Chat() {
   return (
     <section className="chat-page">
       <div className="chat-page-header">
-        <h2 className="chat-title">Chat</h2>
+        <div>
+          <h2 className="chat-title">Symptom chat</h2>
+          <p className="chat-subtitle">Ask about symptoms, conditions, or your last prediction.</p>
+        </div>
         <div className="context-pills">
           {CONTEXTS.map((c) => (
             <button
@@ -77,7 +81,7 @@ export default function Chat() {
         </div>
       </div>
 
-      <div className="chat-window">
+      <div className="chat-window glass">
         {messages.map((m, i) => (
           <ChatBubble key={i} text={m.text} sender={m.sender} sources={m.sources} />
         ))}
@@ -92,8 +96,13 @@ export default function Chat() {
           onKeyDown={handleKey}
           placeholder="Describe a symptom or ask a question…"
         />
-        <button className="btn btn-primary" onClick={sendMessage} disabled={isTyping}>
-          Send
+        <button
+          className="btn btn-primary chat-send"
+          onClick={sendMessage}
+          disabled={isTyping || !input.trim()}
+          type="button"
+        >
+          <HiOutlinePaperAirplane />
         </button>
       </div>
     </section>

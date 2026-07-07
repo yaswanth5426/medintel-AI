@@ -15,6 +15,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from backend.routers.history import router as history_router
 from backend.routers.predict import router as predict_router
 from backend.routers.upload import router as upload_router
 
@@ -42,6 +43,7 @@ app.add_middleware(
 
 app.include_router(predict_router)
 app.include_router(upload_router)
+app.include_router(history_router)
 
 # The real /chat router calls into the GenAI engineer's RAG + Gemini
 # pipeline (backend/rag/). It needs GEMINI_API_KEY set in backend/.env and a
