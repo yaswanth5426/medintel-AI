@@ -8,34 +8,73 @@ def predict_diabetes(features):
     features = np.array(features).reshape(1, -1)
 
     prediction = diabetes_model.predict(features)[0]
-    confidence = diabetes_model.predict_proba(features).max()
+
+    probabilities = diabetes_model.predict_proba(features)[0]
+
+    confidence = max(probabilities)
 
     return {
-        "prediction": "Diabetes" if prediction else "No Diabetes",
-        "confidence": round(float(confidence), 2)
+        "prediction": "Diabetes" if prediction == 1 else "No Diabetes",
+
+        "confidence": round(float(confidence), 2),
+
+        "probabilities": {
+            "No Diabetes": round(float(probabilities[0]), 2),
+            "Diabetes": round(float(probabilities[1]), 2)
+        }
     }
 
 def predict_heart(features):
     features = np.array(features).reshape(1, -1)
 
     prediction = heart_model.predict(features)[0]
-    confidence = heart_model.predict_proba(features).max()
+
+    probabilities = heart_model.predict_proba(features)[0]
+
+    confidence = max(probabilities)
 
     return {
-        "prediction": "Heart Disease" if prediction else "No Heart Disease",
-        "confidence": round(float(confidence), 2)
-    }  
+        "prediction": "Heart Disease" if prediction == 1 else "No Heart Disease",
+
+        "confidence": round(float(confidence), 2),
+
+        "probabilities": {
+            "No Heart Disease": round(float(probabilities[0]), 2),
+            "Heart Disease": round(float(probabilities[1]), 2)
+        }
+    }
 def predict_kidney(features):
     features = np.array(features).reshape(1, -1)
 
     prediction = kidney_model.predict(features)[0]
-    confidence = kidney_model.predict_proba(features).max()
+
+    probabilities = kidney_model.predict_proba(features)[0]
+
+    confidence = max(probabilities)
 
     return {
-        "prediction": "Kidney Disease" if prediction else "No Kidney Disease",
-        "confidence": round(float(confidence), 2)
-    }   
-print("Diabetes:", diabetes_model.n_features_in_)
-print("Heart:", heart_model.n_features_in_)
-print("Kidney:", kidney_model.n_features_in_)
+        "prediction": "Kidney Disease" if prediction == 1 else "No Kidney Disease",
 
+        "confidence": round(float(confidence), 2),
+
+        "probabilities": {
+            "No Kidney Disease": round(float(probabilities[0]), 2),
+            "Kidney Disease": round(float(probabilities[1]), 2)
+        }
+    }
+
+
+from backend.ml.predict import predict_diabetes
+
+sample = [
+    6,
+    148,
+    72,
+    35,
+    0,
+    33.6,
+    0.627,
+    50
+]
+
+print(predict_diabetes(sample))
