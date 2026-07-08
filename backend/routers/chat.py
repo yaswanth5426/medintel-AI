@@ -1,33 +1,29 @@
 """
-POST /chat — symptom chat / medical Q&A.
+POST /chat/ - symptom chat / medical Q&A, backed by the GenAI engineer's
+RAG + Gemini pipeline (backend/rag/rag_pipeline.py). Owned by the GenAI
+engineer - Member 3 only wires this router into the app in main.py.
 
-Dummy implementation for the Day 1 frontend/backend skeleton. The real
-answer generation (FAISS retrieval + Gemini) belongs to the GenAI engineer
-in backend/rag/ — this router should stay a thin HTTP layer that calls into
-that module once it exists.
+Requires GEMINI_API_KEY in backend/.env and a built FAISS index. If either
+is missing, main.py automatically falls back to routers/chat_dummy.py so
+the frontend keeps working during local dev.
 """
 
-from typing import Optional
-
 from fastapi import APIRouter
-from pydantic import BaseModel
-
-router = APIRouter(tags=["chat"])
-
-
-class ChatRequest(BaseModel):
-    message: str
-    context: Optional[str] = "General"
+from fastapi import HTTPException
+from backend.models.chat import ChatRequest, ChatResponse
+from backend.rag.rag_pipeline import generate_answer
 
 
-@router.post("/chat")
+router = APIRouter(prefix="/chat", tags=["Chat"])
+
+
+@router.post("/", response_model=ChatResponse)
 def chat(request: ChatRequest):
-    """Return a dummy reply so the frontend has a real contract to build against."""
-    return {
-        "reply": (
-            f"(dummy) Got your message about '{request.message}' "
-            f"in the {request.context} context. The RAG + Gemini pipeline "
-            "isn't connected yet."
-        ),
-        "sources": [],
-    }
+    try:
+        answer, sources = generate_answer(request.question)
+        return {
+            "answer": answer,
+            "sources": sources
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

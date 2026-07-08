@@ -1,48 +1,72 @@
 .upload-box {
-  border: 1.5px dashed var(--line);
-  border-radius: var(--radius);
-  padding: 3rem 1.5rem;
+  border: 1.5px dashed var(--border-strong);
+  padding: 3.25rem 1.5rem;
   text-align: center;
   cursor: pointer;
-  transition: border-color 0.15s ease, background 0.15s ease;
+  transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
 }
 
-.upload-box:hover, .upload-box.drag-over {
-  border-color: var(--amber);
-  background: var(--panel);
+.upload-box:hover,
+.upload-box.drag-over {
+  border-color: var(--violet-bright);
+  box-shadow: var(--shadow-glow);
 }
+
+.upload-box.has-file {
+  border-style: solid;
+  border-color: var(--cyan);
+}
+
+.upload-box-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--surface-hover);
+  color: var(--text-dim);
+  margin-bottom: 1rem;
+}
+
+.upload-box.has-file .upload-box-icon {
+  background: var(--cyan-soft);
+  color: var(--cyan);
+}
+
+.upload-box-icon svg { width: 24px; height: 24px; }
 
 .upload-cta { font-size: 1rem; margin: 0 0 0.4rem; }
 
 .upload-filename {
   font-family: var(--font-mono);
-  color: var(--teal);
+  color: var(--cyan);
   margin: 0 0 0.4rem;
 }
 
 .upload-hint {
-  color: var(--paper-dim);
+  color: var(--text-dim);
   font-size: 0.85rem;
   margin: 0;
 }
 
-.upload-box.has-file {
-  border-style: solid;
-  border-color: var(--teal);
-}
-
 .upload-clear {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
   background: none;
   border: none;
   padding: 0;
-  color: var(--paper-dim);
+  color: var(--text-dim);
   text-decoration: underline;
   font-size: 0.85rem;
+  vertical-align: middle;
 }
-.upload-clear:hover { color: var(--paper); }
+.upload-clear:hover { color: var(--text); }
+.upload-clear svg { width: 13px; height: 13px; }
 
 .upload-error {
-  color: #e26d5a;
+  color: var(--coral);
   font-size: 0.82rem;
-  margin: 0.6rem 0 0;
+  margin: 0.75rem 0 0;
 }

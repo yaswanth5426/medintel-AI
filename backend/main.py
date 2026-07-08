@@ -3,11 +3,10 @@ MedIntel AI — FastAPI entry point.
 
 Owned by the Full Stack Engineer (Member 3). This file only wires together
 routers and app-level config — actual business logic lives in each router
-module and, later, in backend/ml/ (ML engineer) and backend/rag/ (GenAI
-engineer).
+module and, in backend/ml/ (ML engineer) and backend/rag/ (GenAI engineer).
 
-Run locally with:
-    uvicorn main:app --reload
+Run from the project root with:
+    uvicorn backend.main:app --reload
 """
 
 import os
@@ -16,7 +15,11 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from routers import chat, predict
+from backend.routers.chat import router as chat_router
+from backend.routers.upload import router as upload_router
+from backend.routers.history import router as history_router
+from backend.routers.predict import router as predict_router
+
 
 load_dotenv()
 
@@ -40,10 +43,27 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(predict.router)
-app.include_router(chat.router)
+app.include_router(predict_router)
+app.include_router(upload_router)
+app.include_router(history_router)
+
+# The real /chat router calls into the GenAI engineer's RAG + Gemini
+# pipeline (backend/rag/). It needs GEMINI_API_KEY set in backend/.env and a
+# built FAISS index to even import successfully. Until that's configured
+# locally, fall back to a dummy /chat so the frontend can still be built and
+# tested end to end.
+try:
+    from backend.routers.chat import router as chat_router
+    print("[MedIntel] /chat: using the real RAG + Gemini pipeline.")
+except Exception as exc:
+    print(f"[MedIntel] /chat: real pipeline unavailable ({exc!r}) — using the dummy router.")
+    from backend.routers.chat_dummy import router as chat_router
+
+app.include_router(chat_router)
 
 
+
+app.include_router(upload_router)
 @app.get("/")
 def health_check():
     """Simple liveness check used by the frontend and by deployment probes."""

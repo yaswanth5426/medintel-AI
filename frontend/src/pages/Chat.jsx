@@ -5,6 +5,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { HiOutlinePaperAirplane } from 'react-icons/hi2';
 
 import { sendChatMessage } from '../api/client';
 import ChatBubble from '../components/ChatBubble';
@@ -32,13 +33,20 @@ export default function Chat() {
     setInput("");
     setIsTyping(true);
 
+    // The backend's ChatRequest only takes a single "question" field, so
+    // fold the selected disease context into the question itself rather
+    // than dropping the pill selector.
+    const question = context === "General" ? text : `[${context}] ${text}`;
+
     try {
-      const data = await sendChatMessage({ message: text, context });
-      setMessages((prev) => [...prev, { sender: "bot", text: data.reply }]);
+      const data = await sendChatMessage(question);
+      setMessages((prev) => [
+        ...prev,
+        { sender: "bot", text: data.answer, sources: data.sources },
+      ]);
     } catch {
-      // Backend not running yet / request failed — degrade gracefully
-      // instead of leaving the user stuck. Real answers come from the
-      // GenAI engineer's RAG + Gemini pipeline in backend/rag/.
+      // Backend not reachable at all (not even the dummy fallback) —
+      // degrade gracefully instead of leaving the user stuck.
       setMessages((prev) => [
         ...prev,
         { sender: "bot", text: "(offline) Backend isn't reachable — this is a placeholder reply." },
@@ -55,7 +63,10 @@ export default function Chat() {
   return (
     <section className="chat-page">
       <div className="chat-page-header">
-        <h2 className="chat-title">Chat</h2>
+        <div>
+          <h2 className="chat-title">Symptom chat</h2>
+          <p className="chat-subtitle">Ask about symptoms, conditions, or your last prediction.</p>
+        </div>
         <div className="context-pills">
           {CONTEXTS.map((c) => (
             <button
@@ -70,9 +81,9 @@ export default function Chat() {
         </div>
       </div>
 
-      <div className="chat-window">
+      <div className="chat-window glass">
         {messages.map((m, i) => (
-          <ChatBubble key={i} text={m.text} sender={m.sender} />
+          <ChatBubble key={i} text={m.text} sender={m.sender} sources={m.sources} />
         ))}
         {isTyping && <ChatBubble sender="bot" typing />}
         <div ref={endRef} />
@@ -85,8 +96,13 @@ export default function Chat() {
           onKeyDown={handleKey}
           placeholder="Describe a symptom or ask a question…"
         />
-        <button className="btn btn-primary" onClick={sendMessage} disabled={isTyping}>
-          Send
+        <button
+          className="btn btn-primary chat-send"
+          onClick={sendMessage}
+          disabled={isTyping || !input.trim()}
+          type="button"
+        >
+          <HiOutlinePaperAirplane />
         </button>
       </div>
     </section>

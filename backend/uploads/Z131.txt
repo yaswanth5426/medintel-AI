@@ -1,0 +1,170 @@
+LPL - PRODUCTION TEST COLLECTION 
+CENTRE
+SECTOR - 18, BLOCK-E  ROHINI
+DELHI 110085
+Name      
+A/c Status 
+Lab No.    
+Ref By : 
+Gender: 
+Age: 
+Report Status    
+Reported        
+Received           
+Collected        
+P
+:
+:
+:
+:
+:
+:
+: Final
+25 Years
+4/6/2021  11:18:00AM
+4/6/2021  11:20:09AM
+DUMMYZ131
+Male
+DR. DUMMY  DUMMY
+  DUMMY
+5/6/2021  7:33:19PM
+Test Name
+Results
+Units
+Bio. Ref. Interval
+GLUCOSE, FASTING (F) AND POST MEAL, PLASMA
+(Hexokinase)
+120.00
+Glucose Fasting
+ 70 - 100 
+mg/dL
+150.00
+Glucose (PP)
+ 70 - 140 
+mg/dL
+Result Rechecked, Please correlate clinically
+Please repeat sample, if indicated clinically
+Note
+1.
+The diagnosis of Diabetes requires a fasting plasma glucose of > or = 126 mg/dL and/or a random / 2 
+hr post glucose value of > or = 200 mg/dL on at least 2 occasions
+2.
+Very low glucose levels cause severe CNS dysfunction
+3.
+Very high glucose levels (>450 mg/dL in adults) may result in Diabetic Ketoacidosis & is considered 
+critical
+Interpretation
+---------------------------------------------------------------------------
+| Status                    | Fasting plasma glucose | PP plasma glucose    |
+|                           | in mg/dL               | in mg/dL             |
+|---------------------------|------------------------|----------------------|
+| Normal                    |         70-100         |       70-140         | 
+|---------------------------|------------------------|----------------------|
+| Impaired fasting glucose  |         101-125        |       70-140         | 
+|---------------------------|------------------------|----------------------|
+| Impaired glucose tolerance|         70-100         |       141-199        |  
+|---------------------------|------------------------|----------------------|
+| Pre-Diabetes              |         101-125        |       141-199        |
+|---------------------------|------------------------|----------------------|
+| Diabetes mellitus         |         >126           |         >200         | 
+---------------------------------------------------------------------------
+Comments
+Conditions which can lead to lower postprandial glucose levels as compared to fasting glucose are excessive 
+insulin release, rapid gastric emptying & brisk glucose absorption.
+Probable causes:
+·
+Early Type II Diabetes / Glucose intolerance
+PatientReportSCSuperPanel.GENERAL_PANEL_ANALYTE_SC (Version: 6)
+*DUMMYZ131*
+Page 1 of 2
+LPL - PRODUCTION TEST COLLECTION 
+CENTRE
+SECTOR - 18, BLOCK-E  ROHINI
+DELHI 110085
+Name      
+A/c Status 
+Lab No.    
+Ref By : 
+Gender: 
+Age: 
+Report Status    
+Reported        
+Received           
+Collected        
+P
+:
+:
+:
+:
+:
+:
+: Final
+25 Years
+4/6/2021  11:18:00AM
+4/6/2021  11:20:09AM
+DUMMYZ131
+Male
+DR. DUMMY  DUMMY
+  DUMMY
+5/6/2021  7:33:19PM
+Test Name
+Results
+Units
+Bio. Ref. Interval
+·
+Drugs like Salicylates, Beta blockers, Pentamidine etc.
+·
+Alcohol
+·
+Dietary - Intake of excessive carbohydrates and foods with high glycemic index
+·
+Exercise in between samples
+·
+Family history of Diabetes
+·
+Idiopathic
+·
+Partial/ Total Gastrectomy
+Dr Himangshu Mazumdar
+MD, Biochemistry
+Senior Consultant - Clinical Chemistry 
+& Biochemical Genetics                     
+NRL - Dr Lal PathLabs Ltd
+Dr.Kamal Modi
+MD, Biochemistry
+Consultant Biochemist                               
+NRL - Dr Lal PathLabs Ltd
+Dr Nimmi Kansal
+MD, Biochemistry
+National Head - Clinical Chemistry & 
+Biochemical Genetics                     
+NRL - Dr Lal PathLabs Ltd
+             -------------------------------End of report --------------------------------
+IMPORTANT INSTRUCTIONS
+*Test results released pertain to the specimen submitted.*All test results are dependent on the quality of the sample received by the Laboratory . 
+*Laboratory investigations are only a tool to facilitate in arriving at a diagnosis and should be clinically correlated by the Referring Physician .*Sample 
+repeats are accepted on request of Referring Physician within 
+7 days post reporting.*Report delivery may be delayed due to unforeseen 
+circumstances. Inconvenience is regretted.*Certain tests may require further testing at additional cost for derivation of exact value. Kindly submit 
+request 
+within 
+72 hours 
+post 
+reporting.*Test 
+results 
+may 
+show 
+interlaboratory 
+variations.*The 
+Courts/Forum 
+at 
+Delhi 
+shall 
+have 
+exclusive 
+jurisdiction in all disputes/claims concerning the test(s) & or results of test(s).*Test results are not valid for medico legal purposes. *Contact 
+customer care Tel No. +91-11-39885050 for all queries related to test results.
+(#) Sample drawn from outside source.
+PatientReportSCSuperPanel.GENERAL_PANEL_ANALYTE_SC (Version: 6)
+*DUMMYZ131*
+Page 2 of 2
