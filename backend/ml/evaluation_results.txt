@@ -1,0 +1,20 @@
+========== Diabetes ==========
+Accuracy: 100.00%
+Precision: 100.00%
+Recall: 100.00%
+F1 Score: 100.00%
+ROC-AUC: 100.00%
+
+========== Heart Disease ==========
+Accuracy: 100.00%
+Precision: 100.00%
+Recall: 100.00%
+F1 Score: 100.00%
+ROC-AUC: 100.00%
+
+========== Kidney Disease ==========
+Accuracy: 100.00%
+Precision: 100.00%
+Recall: 100.00%
+F1 Score: 100.00%
+ROC-AUC: 100.00%
