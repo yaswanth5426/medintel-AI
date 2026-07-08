@@ -4,6 +4,11 @@ import {
   useRef,
   useState,
 } from 'react';
+import {
+  HiOutlineCloudArrowUp,
+  HiOutlineDocumentText,
+  HiOutlineXMark,
+} from 'react-icons/hi2';
 
 const MAX_SIZE_MB = 15;
 
@@ -39,7 +44,7 @@ export default function UploadBox({ file, onFileSelect }) {
   return (
     <div>
       <div
-        className={`upload-box ${dragOver ? "drag-over" : ""} ${file ? "has-file" : ""}`}
+        className={`upload-box glass ${dragOver ? "drag-over" : ""} ${file ? "has-file" : ""}`}
         onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
         onDragLeave={() => setDragOver(false)}
         onDrop={(e) => {
@@ -56,12 +61,17 @@ export default function UploadBox({ file, onFileSelect }) {
           hidden
           onChange={(e) => handleFiles(e.target.files)}
         />
+        <span className="upload-box-icon">
+          {file ? <HiOutlineDocumentText /> : <HiOutlineCloudArrowUp />}
+        </span>
         {file ? (
           <>
             <p className="upload-filename">{file.name}</p>
             <p className="upload-hint">
               {(file.size / 1024 / 1024).toFixed(2)} MB &middot;{' '}
-              <button className="upload-clear" onClick={clear} type="button">remove</button>
+              <button className="upload-clear" onClick={clear} type="button">
+                <HiOutlineXMark /> remove
+              </button>
             </p>
           </>
         ) : (
