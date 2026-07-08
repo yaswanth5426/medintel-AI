@@ -46,6 +46,7 @@ MODELS = {
     "kidney": {
         "path": "backend/ml/models/ckd_model.pkl",
         "features": [
+            "id",
             "age",
             "bp",
             "sg",

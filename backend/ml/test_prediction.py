@@ -4,6 +4,54 @@ from predict import (
     predict_heart,
     predict_kidney
 )
+# pyrefly: ignore [missing-import]
+from feature_mapping import map_features
+
+print("\n" + "=" * 40)
+print("PARTIAL FEATURE VECTOR TEST")
+print("=" * 40)
+
+partial_report = {
+    "Glucose": 180,
+    "Age": 45
+}
+
+mapped_features = map_features(partial_report, "diabetes")
+
+print("Mapped Features:")
+print(mapped_features)
+
+result = predict_diabetes(mapped_features)
+
+print("Prediction :", result["prediction"])
+print("Confidence :", f'{result["confidence"] * 100:.0f}%')
+print("Risk :", result["risk"])
+
+
+print("\n" + "=" * 40)
+print("INVALID FEATURE VECTOR TEST")
+print("=" * 40)
+
+invalid_report = {
+    "Glucose": -100,
+    "Age": -10
+}
+
+try:
+
+    if invalid_report["Glucose"] < 0:
+        raise ValueError("Glucose cannot be negative.")
+
+    if invalid_report["Age"] < 0:
+        raise ValueError("Age cannot be negative.")
+
+    mapped_features = map_features(invalid_report, "diabetes")
+    result = predict_diabetes(mapped_features)
+
+    print(result)
+
+except ValueError as e:
+    print("Validation Error:", e)
 
 
 # ---------------------------
@@ -30,7 +78,7 @@ result = predict_diabetes(diabetes_sample)
 print("Prediction :", result["prediction"])
 print("Confidence :", f'{result["confidence"] * 100:.0f}%')
 print("Probabilities :", result["probabilities"])
-
+print ("risk :", result["risk"])
 
 # ---------------------------
 # Heart Sample
@@ -58,9 +106,11 @@ print("=" * 40)
 
 result = predict_heart(heart_sample)
 
+
 print("Prediction :", result["prediction"])
 print("Confidence :", f'{result["confidence"] * 100:.0f}%')
 print("Probabilities :", result["probabilities"])
+print ("risk :", result["risk"])
 
 
 # ---------------------------
@@ -101,6 +151,10 @@ print("=" * 40)
 
 result = predict_kidney(kidney_sample)
 
+
 print("Prediction :", result["prediction"])
 print("Confidence :", f'{result["confidence"] * 100:.0f}%')
 print("Probabilities :", result["probabilities"])
+print ("risk :", result["risk"])
+
+
