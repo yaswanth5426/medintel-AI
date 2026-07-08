@@ -1,0 +1,30 @@
+.disclaimer {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  max-width: 900px;
+  margin: 2.5rem auto 2rem;
+  padding: 1rem 1.25rem;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  line-height: 1.55;
+}
+
+.disclaimer p { margin: 0; }
+
+.disclaimer-icon {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-sm);
+  background: var(--amber-soft);
+  color: var(--amber);
+}
+
+.disclaimer-icon svg {
+  width: 15px;
+  height: 15px;
+}
