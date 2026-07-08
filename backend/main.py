@@ -15,9 +15,11 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from backend.routers.chat import router as chat_router
+from backend.routers.upload import router as upload_router
 from backend.routers.history import router as history_router
 from backend.routers.predict import router as predict_router
-from backend.routers.upload import router as upload_router
+
 
 load_dotenv()
 
@@ -60,6 +62,8 @@ except Exception as exc:
 app.include_router(chat_router)
 
 
+
+app.include_router(upload_router)
 @app.get("/")
 def health_check():
     """Simple liveness check used by the frontend and by deployment probes."""
