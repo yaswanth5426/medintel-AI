@@ -67,12 +67,13 @@ CKD_FEATURES = [
 # Feature Mapping
 # -----------------------------------------
 
-def map_features(report_data, disease):
+def map_features(disease: str, lab_values: dict):
     """
-    Convert extracted report data into the feature
-    vector expected by the trained model.
-    Missing values are filled using the defaults
-    saved during training.
+    Convert lab values into the feature vector expected
+    by the trained model.
+
+    Missing values are filled using the defaults saved
+    during training.
     """
 
     disease = disease.lower()
@@ -89,23 +90,23 @@ def map_features(report_data, disease):
             PREPROCESSOR_DIR + "heart_defaults.pkl"
         )
 
-    elif disease == "kidney":
+    elif disease in ["kidney", "ckd"]:
         feature_order = CKD_FEATURES
         defaults = joblib.load(
             PREPROCESSOR_DIR + "ckd_defaults.pkl"
         )
 
     else:
-        raise ValueError("Unsupported disease")
+        raise ValueError("Unsupported disease.")
 
     feature_vector = []
 
     for feature in feature_order:
 
-        value = report_data.get(feature)
+        value = lab_values.get(feature)
 
         if value is None:
-            value = defaults[feature]
+            value = defaults.get(feature, 0)
 
         feature_vector.append(value)
 
@@ -118,12 +119,15 @@ def map_features(report_data, disease):
 
 if __name__ == "__main__":
 
-    report = {
+    diabetes_report = {
         "Glucose": 180,
         "Age": 45
     }
 
-    mapped = map_features(report, "diabetes")
+    mapped = map_features(
+        "diabetes",
+        diabetes_report
+    )
 
     print("Mapped Feature Vector:\n")
     print(mapped)

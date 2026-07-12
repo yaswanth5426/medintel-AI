@@ -1,6 +1,62 @@
 import joblib
 import numpy as np
 
+DIABETES_FEATURES = {
+    "Pregnancies",
+    "Glucose",
+    "BloodPressure",
+    "SkinThickness",
+    "Insulin",
+    "BMI",
+    "DiabetesPedigreeFunction",
+    "Age"
+}
+
+HEART_FEATURES = {
+    "age",
+    "sex",
+    "cp",
+    "trestbps",
+    "chol",
+    "fbs",
+    "restecg",
+    "thalach",
+    "exang",
+    "oldpeak",
+    "slope",
+    "ca",
+    "thal"
+}
+
+CKD_FEATURES = {
+    "id",
+    "age",
+    "bp",
+    "sg",
+    "al",
+    "su",
+    "rbc",
+    "pc",
+    "pcc",
+    "ba",
+    "bgr",
+    "bu",
+    "sc",
+    "sod",
+    "pot",
+    "hemo",
+    "pcv",
+    "wc",
+    "rc",
+    "htn",
+    "dm",
+    "cad",
+    "appet",
+    "pe",
+    "ane"
+}
+
+
 # Load trained models
 diabetes_model = joblib.load("backend/ml/models/diabetes_model.pkl")
 heart_model = joblib.load("backend/ml/models/heart_model.pkl")
@@ -115,4 +171,79 @@ def predict_kidney(features):
             "No Kidney Disease": round(float(probabilities[0]), 2),
             "Kidney Disease": round(float(probabilities[1]), 2)
         }
+    }
+
+# pyrefly: ignore [missing-import]
+from backend.ml.feature_mapping import map_features
+
+
+def predict_disease(lab_values: dict):
+    """
+    Generic prediction function used by the backend API.
+    Automatically detects which disease model to use.
+    """
+
+    if not lab_values:
+        raise ValueError("Empty lab values.")
+
+    keys = set(lab_values.keys())
+
+    # -------------------------
+    # Detect disease
+    # -------------------------
+
+    if DIABETES_FEATURES.issubset(keys):
+        disease = "diabetes"
+
+    elif HEART_FEATURES.issubset(keys):
+        disease = "heart"
+
+    elif CKD_FEATURES.issubset(keys):
+        disease = "kidney"
+
+    else:
+        raise ValueError("Unsupported or incomplete feature set.")
+
+    # -------------------------
+    # Validate input
+    # -------------------------
+
+    for key, value in lab_values.items():
+
+        if value is None:
+            continue
+
+        if not isinstance(value, (int, float)):
+            raise ValueError(f"{key} must be numeric.")
+
+        if value < 0:
+            raise ValueError(f"{key} cannot be negative.")
+
+    # -------------------------
+    # Feature Mapping
+    # -------------------------
+
+    features = map_features(disease, lab_values)
+
+    # -------------------------
+    # Prediction
+    # -------------------------
+
+    if disease == "diabetes":
+        result = predict_diabetes(features)
+
+    elif disease == "heart":
+        result = predict_heart(features)
+
+    else:
+        result = predict_kidney(features)
+
+    # -------------------------
+    # Return
+    # -------------------------
+
+    return {
+        "prediction": result["prediction"],
+        "confidence": result["confidence"],
+        "risk": result["risk"]
     }

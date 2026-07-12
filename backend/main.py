@@ -15,11 +15,9 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.routers.chat import router as chat_router
+from backend.routers.predict import router as predict_router
 from backend.routers.upload import router as upload_router
 from backend.routers.history import router as history_router
-from backend.routers.predict import router as predict_router
-
 
 load_dotenv()
 
