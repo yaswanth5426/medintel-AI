@@ -79,27 +79,27 @@ def train_model(dataset_path, target_column, model_name, defaults_name, scaler_n
 if __name__ == "__main__":
 
     train_model(
-        "datasets/processed_diabetes.csv",
-        "Outcome",
-        "diabetes_model.pkl",
-        "diabetes_defaults.pkl",
-        "diabetes_scaler.pkl"
+     "datasets/clean_diabetes_dataset.csv",
+    "Outcome",
+    "diabetes_model_v2.pkl",
+    "diabetes_defaults_v2.pkl",
+    "diabetes_scaler_v2.pkl"
     )
 
     train_model(
-        "datasets/processed_heart.csv",
-        "target",
-        "heart_model.pkl",
-        "heart_defaults.pkl",
-        "heart_scaler.pkl"
+        "datasets/clean_heart_dataset.csv",
+    "Target",
+    "heart_model_v2.pkl",
+    "heart_defaults_v2.pkl",
+    "heart_scaler_v2.pkl"
     )
 
     train_model(
-        "datasets/processed_kidney.csv",
-        "classification",
-        "ckd_model.pkl",
-        "ckd_defaults.pkl",
-        "ckd_scaler.pkl"
+        "datasets/clean_kidney_dataset.csv",
+    "Target",
+    "ckd_model_v2.pkl",
+    "ckd_defaults_v2.pkl",
+    "ckd_scaler_v2.pkl"
     )
 
     print("\n===================================")

@@ -2,65 +2,88 @@ import joblib
 import numpy as np
 
 DIABETES_FEATURES = {
+    "Age",
+    "Gender",
     "Pregnancies",
     "Glucose",
-    "BloodPressure",
-    "SkinThickness",
-    "Insulin",
+    "HbA1c",
     "BMI",
-    "DiabetesPedigreeFunction",
-    "Age"
+    "BloodPressure",
+    "Insulin",
+    "Hypertension",
+    "Smoking",
+    "FamilyHistory",
+    "HeartDisease"
 }
 
 HEART_FEATURES = {
-    "age",
-    "sex",
-    "cp",
-    "trestbps",
-    "chol",
-    "fbs",
-    "restecg",
-    "thalach",
-    "exang",
-    "oldpeak",
-    "slope",
-    "ca",
-    "thal"
+     "Age",
+    "Sex",
+    "Height",
+    "Weight",
+    "BMI",
+    "SystolicBP",
+    "DiastolicBP",
+    "TotalCholesterol",
+    "Glucose",
+    "Smoking",
+    "Diabetes",
+    "Hypertension",
+    "Alcohol",
+    "PhysicalActivity",
+    "HeartRate",
+    "Platelets",
+    "SerumCreatinine",
+    "SerumSodium",
+    "CPK"
 }
 
 CKD_FEATURES = {
-    "id",
-    "age",
-    "bp",
-    "sg",
-    "al",
-    "su",
-    "rbc",
-    "pc",
-    "pcc",
-    "ba",
-    "bgr",
-    "bu",
-    "sc",
-    "sod",
-    "pot",
-    "hemo",
-    "pcv",
-    "wc",
-    "rc",
-    "htn",
-    "dm",
-    "cad",
-    "appet",
-    "pe",
-    "ane"
+    "Age",
+    "BloodPressure",
+    "SpecificGravity",
+    "Albumin",
+    "Sugar",
+    "BloodGlucose",
+    "BloodUrea",
+    "SerumCreatinine",
+    "Sodium",
+    "Potassium",
+    "Hemoglobin",
+    "PackedCellVolume",
+    "WBC",
+    "RBC",
+    "Hypertension",
+    "Diabetes",
+    "CoronaryArteryDisease",
+    "Appetite",
+    "PedalEdema",
+    "Anemia",
+    "eGFR",
+    "UrineProteinCreatinineRatio",
+    "UrineOutput",
+    "SerumAlbumin",
+    "Calcium",
+    "Phosphate",
+    "BMI",
+    "Smoking",
+    "PhysicalActivity",
+    "CystatinC"
 }
 
 
 # Load trained models
-diabetes_model = joblib.load("backend/ml/models/diabetes_model.pkl")
-heart_model = joblib.load("backend/ml/models/heart_model.pkl")
-kidney_model = joblib.load("backend/ml/models/ckd_model.pkl")
+diabetes_model = joblib.load(
+    "backend/ml/models/diabetes_model_v2.pkl"
+)
+
+heart_model = joblib.load(
+    "backend/ml/models/heart_model_v2.pkl"
+)
+
+kidney_model = joblib.load(
+    "backend/ml/models/ckd_model_v2.pkl"
+)
 
 
 def calculate_risk(disease_probability):
@@ -83,6 +106,8 @@ def calculate_risk(disease_probability):
 # ============================
 
 def predict_diabetes(features):
+
+    scaler = joblib.load("backend/ml/models/preprocessors/diabetes_scaler_v2.pkl")
 
     features = np.array(features).reshape(1, -1)
 
@@ -116,6 +141,8 @@ def predict_diabetes(features):
 
 def predict_heart(features):
 
+    scaler = joblib.load("backend/ml/models/preprocessors/heart_scaler_v2.pkl")
+
     features = np.array(features).reshape(1, -1)
 
     prediction = heart_model.predict(features)[0]
@@ -148,6 +175,8 @@ def predict_heart(features):
 
 def predict_kidney(features):
 
+    scaler = joblib.load("backend/ml/models/preprocessors/ckd_scaler_v2.pkl")
+
     features = np.array(features).reshape(1, -1)
 
     prediction = kidney_model.predict(features)[0]
@@ -174,39 +203,32 @@ def predict_kidney(features):
     }
 
 # pyrefly: ignore [missing-import]
-from backend.ml.feature_mapping import map_features
+try:
+    from backend.ml.feature_mapping import map_features
+except ModuleNotFoundError:
+    # pyrefly: ignore [missing-import]
+    from feature_mapping import map_features
 
 
-def predict_disease(lab_values: dict):
+def predict_disease(
+    disease: str,
+    lab_values: dict
+):
     """
     Generic prediction function used by the backend API.
-    Automatically detects which disease model to use.
     """
+
+    disease = disease.lower()
+
+    if disease not in ["diabetes", "heart", "kidney", "ckd"]:
+        raise ValueError("Unsupported disease.")
 
     if not lab_values:
         raise ValueError("Empty lab values.")
 
-    keys = set(lab_values.keys())
-
-    # -------------------------
-    # Detect disease
-    # -------------------------
-
-    if DIABETES_FEATURES.issubset(keys):
-        disease = "diabetes"
-
-    elif HEART_FEATURES.issubset(keys):
-        disease = "heart"
-
-    elif CKD_FEATURES.issubset(keys):
-        disease = "kidney"
-
-    else:
-        raise ValueError("Unsupported or incomplete feature set.")
-
-    # -------------------------
+    # -----------------------------------
     # Validate input
-    # -------------------------
+    # -----------------------------------
 
     for key, value in lab_values.items():
 
@@ -219,31 +241,43 @@ def predict_disease(lab_values: dict):
         if value < 0:
             raise ValueError(f"{key} cannot be negative.")
 
-    # -------------------------
+    # -----------------------------------
     # Feature Mapping
-    # -------------------------
+    # -----------------------------------
 
-    features = map_features(disease, lab_values)
+    features = map_features(
+        disease,
+        lab_values
+    )
 
-    # -------------------------
+    # -----------------------------------
     # Prediction
-    # -------------------------
+    # -----------------------------------
 
     if disease == "diabetes":
+
         result = predict_diabetes(features)
 
     elif disease == "heart":
+
         result = predict_heart(features)
 
     else:
+
         result = predict_kidney(features)
 
-    # -------------------------
+    # -----------------------------------
     # Return
-    # -------------------------
+    # -----------------------------------
 
     return {
+
         "prediction": result["prediction"],
+
         "confidence": result["confidence"],
-        "risk": result["risk"]
+
+        "risk": result["risk"],
+
+        "probabilities": result["probabilities"]
+
     }
