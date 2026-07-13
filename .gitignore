@@ -1,28 +1,17 @@
-# Python
-.venv/
+# Python (backend)
 __pycache__/
 *.pyc
+venv/
+.venv/
+env/
+*.egg-info/
 
-# Environment variables
+# Environment variables — never commit real secrets
 .env
+backend/.env
+frontend/.env
 
-# VS Code
-.vscode/
-
-# OS files
+# OS / editor
 .DS_Store
-Thumbs.db
-
-# Python caches
-.pytest_cache/
-.mypy_cache/
-
-# Jupyter
-.ipynb_checkpoints/
-
-# Node
-node_modules/
-
-# Build
-dist/
-build/
+.vscode/
+.idea/
