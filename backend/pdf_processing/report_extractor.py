@@ -1,93 +1,190 @@
 import re
 
 
+def search_patterns(patterns, text):
+
+    for pattern in patterns:
+
+        match = re.search(
+            pattern,
+            text,
+            re.IGNORECASE
+        )
+
+        if match:
+
+            return match.group(1).strip()
+
+    return None
+
+
 def extract_report_details(text: str):
 
     details = {
-        "patient_name": None,
+
         "age": None,
+
         "gender": None,
-        "hospital": None,
-        "report_date": None,
-        "doctor": None
+
+        "height": None,
+
+        "weight": None,
+
+        "bmi": None
+
     }
 
     # -----------------------
-    # Patient Name
+    # AGE
     # -----------------------
-    match = re.search(
-        r"Name\s*:?\s*([A-Za-z0-9 ]+)",
-        text,
-        re.IGNORECASE
-    )
 
-    if match:
-        details["patient_name"] = match.group(1).strip()
+    age_patterns = [
 
-    # -----------------------
-    # Age
-    # -----------------------
-    match = re.search(
         r"Age\s*:?\s*(\d+)",
-        text,
-        re.IGNORECASE
-    )
 
-    if match:
-        details["age"] = int(match.group(1))
+        r"Age\/Sex\s*:?\s*(\d+)",
 
-    # -----------------------
-    # Gender
-    # -----------------------
-    match = re.search(
-        r"Gender\s*:?\s*(Male|Female|Other)",
-        text,
-        re.IGNORECASE
-    )
+        r"(\d+)\s*Years"
 
-    if match:
-        details["gender"] = match.group(1)
+    ]
 
-    # -----------------------
-    # Report Date
-    # -----------------------
-    match = re.search(
-        r"Reported\s*.*?(\d{1,2}/\d{1,2}/\d{4})",
-        text,
-        re.IGNORECASE | re.DOTALL
-    )
-
-    if match:
-        details["report_date"] = match.group(1)
-
-    # -----------------------
-    # Hospital
-    # -----------------------
-
-    first_lines = "\n".join(text.splitlines()[:20])
-
-    if "lal pathlabs" in first_lines.lower():
-        details["hospital"] = "Dr Lal PathLabs"
-
-    elif "apollo" in first_lines.lower():
-        details["hospital"] = "Apollo Hospital"
-
-    elif "aig" in first_lines.lower():
-        details["hospital"] = "AIG Hospital"
-
-    elif "yashoda" in first_lines.lower():
-        details["hospital"] = "Yashoda Hospital"
-
-    # -----------------------
-    # Doctor
-    # -----------------------
-
-    doctors = re.findall(
-        r"Dr\.?\s+[A-Za-z ]+",
+    age = search_patterns(
+        age_patterns,
         text
     )
 
-    if doctors:
-        details["doctor"] = doctors[0].strip()
+    if age:
+
+        details["age"] = int(age)
+
+    # -----------------------
+    # GENDER
+    # -----------------------
+
+    gender_patterns = [
+
+        r"Gender\s*:?\s*(Male|Female|Other)",
+
+        r"Sex\s*:?\s*(Male|Female|Other)",
+
+        r"Age\/Sex\s*:?\s*\d+\s*/\s*(M|F)"
+
+    ]
+
+    gender = search_patterns(
+        gender_patterns,
+        text
+    )
+
+    if gender:
+
+        gender = gender.upper()
+
+        if gender == "M":
+
+            gender = "Male"
+
+        elif gender == "F":
+
+            gender = "Female"
+
+        details["gender"] = gender.title()
+
+    # -----------------------
+    # HEIGHT
+    # -----------------------
+
+    height_patterns = [
+
+        r"Height\s*:?\s*(\d+(?:\.\d+)?)",
+
+        r"Height\s*\(cm\)\s*:?\s*(\d+(?:\.\d+)?)"
+
+    ]
+
+    height = search_patterns(
+        height_patterns,
+        text
+    )
+
+    if height:
+
+        details["height"] = float(height)
+
+    # -----------------------
+    # WEIGHT
+    # -----------------------
+
+    weight_patterns = [
+
+        r"Weight\s*:?\s*(\d+(?:\.\d+)?)",
+
+        r"Weight\s*\(kg\)\s*:?\s*(\d+(?:\.\d+)?)"
+
+    ]
+
+    weight = search_patterns(
+        weight_patterns,
+        text
+    )
+
+    if weight:
+
+        details["weight"] = float(weight)
+
+    # -----------------------
+    # BMI
+    # -----------------------
+
+    bmi_patterns = [
+
+        r"BMI\s*:?\s*(\d+(?:\.\d+)?)"
+
+    ]
+
+    bmi = search_patterns(
+        bmi_patterns,
+        text
+    )
+
+    if bmi:
+
+        details["bmi"] = float(bmi)
+
+    elif details["height"] and details["weight"]:
+
+        height = details["height"]
+
+        # Convert cm → m
+        if height > 3:
+
+            height /= 100
+
+        details["bmi"] = round(
+
+            details["weight"] /
+
+            (height * height),
+
+            2
+
+        )
 
     return details
+
+
+if __name__ == "__main__":
+
+    sample = """
+
+    Patient Name : Yaswanth
+
+    Age/Sex : 22 / M
+
+    Height : 172
+
+    Weight : 70
+
+    """
+
+    print(extract_report_details(sample))
