@@ -1,35 +1,82 @@
 """
-POST /predict — disease risk prediction.
+POST /predict — disease risk prediction (Member 3 / routers).
 
-Dummy implementation for the Day 1 frontend/backend skeleton. The real
-prediction logic (feature engineering, XGBoost inference, SHAP
-explanations) belongs to the ML engineer in backend/ml/ and will be called
-from here once it's ready — this router should stay a thin HTTP layer.
+This is the thin HTTP layer over prediction_engine.py. It accepts the values
+extracted from a report (patient + lab_values, exactly as upload.py returns
+them) plus any manual answers the user gave for missing fields, and returns
+either:
+
+  * status = "needs_user_input"  + the list of missing feature specs, or
+  * status = "success"           + prediction, confidence, risk, key factors
+                                   and a plain-language AI summary.
+
+Successful predictions are saved to the history store so they show on the
+Dashboard. The ML models and feature mapping stay entirely inside
+prediction_engine.py / backend/ml — this file only orchestrates.
 """
 
-from typing import Optional
+from datetime import datetime, timezone
+from typing import Any, Dict, Optional
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
+
+from backend.routers import prediction_engine as engine
+from backend.database import history_store
 
 router = APIRouter(tags=["prediction"])
 
 
 class PredictRequest(BaseModel):
-    # Loosely typed for now — either symptom text or lab values can be sent.
-    # backend/ml/feature_engineering.py will define the real schema.
-    input_type: str = "symptoms"  # "symptoms" | "lab_report"
-    disease_context: Optional[str] = None
-    payload: dict = {}
+    disease: str  # "diabetes" | "heart" | "kidney" (aliases accepted)
+    patient: Dict[str, Any] = {}
+    lab_values: Dict[str, Any] = {}
+    manual_values: Dict[str, Any] = {}
+    # Optional pre-flattened values; if given, merged over patient+lab_values.
+    report_values: Optional[Dict[str, Any]] = None
+    source: str = "Lab report"  # for the history row ("Lab report" | "Symptoms")
 
 
 @router.post("/predict")
 def predict_disease(request: PredictRequest):
-    """Return a dummy prediction so the frontend has a real contract to build against."""
+    try:
+        flat = engine._flatten_report(request.patient, request.lab_values)
+        if request.report_values:
+            flat.update(request.report_values)
+
+        result = engine.predict(request.disease, flat, request.manual_values)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+    # Only completed predictions are recorded.
+    if result.get("status") == "success":
+        record = {
+            "date": datetime.now(timezone.utc).strftime("%b %d"),
+            "source": request.source,
+            "disease": result["disease_label"],
+            "risk_level": result["risk"],
+            "confidence": result["confidence"],
+            "probability": result["probability"],
+            "patient_name": (request.patient or {}).get("patient_name"),
+        }
+        try:
+            saved = history_store.save_prediction(record)
+            result["history_id"] = saved["id"]
+        except Exception as exc:  # noqa: BLE001 — persistence must never break a prediction
+            result["history_warning"] = f"Prediction succeeded but was not saved: {exc}"
+
+    return result
+
+
+@router.get("/predict/features/{disease}")
+def get_feature_specs(disease: str):
+    """Full feature spec for a disease — lets the frontend render a blank form."""
+    try:
+        key = engine._normalize(disease)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
     return {
-        "disease": request.disease_context or "Diabetes",
-        "risk_level": "Medium",
-        "confidence": 0.62,
-        "shap_explanation": None,  # populated once backend/ml/shap_explainer.py exists
-        "note": "Dummy response — XGBoost model not connected yet.",
+        "disease": key,
+        "disease_label": engine.DISEASE_LABELS[key],
+        "features": [engine._public_spec(s) for s in engine.FEATURE_SPECS[key]],
     }
