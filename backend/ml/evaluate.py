@@ -57,8 +57,8 @@ def evaluate_model(model_path, dataset_path, target_column):
 # ================= Diabetes =================
 
 diabetes_results = evaluate_model(
-    "backend/ml/models/diabetes_model.pkl",
-    "datasets/processed_diabetes.csv",
+    "backend/ml/models/diabetes_model_v2.pkl",
+    "datasets/clean_diabetes_dataset.csv",
     "Outcome"
 )
 
@@ -66,18 +66,18 @@ diabetes_results = evaluate_model(
 # ================= Heart Disease =================
 
 heart_results = evaluate_model(
-    "backend/ml/models/heart_model.pkl",
-    "datasets/processed_heart.csv",
-    "target"
+     "backend/ml/models/heart_model_v2.pkl",
+    "datasets/clean_heart_dataset.csv",
+    "Target"
 )
 
 
 # ================= Kidney Disease =================
 
 kidney_results = evaluate_model(
-    "backend/ml/models/ckd_model.pkl",
-    "datasets/processed_kidney.csv",
-    "classification"
+    "backend/ml/models/ckd_model_v2.pkl",
+    "datasets/clean_kidney_dataset.csv",
+    "Target"
 )
 
 

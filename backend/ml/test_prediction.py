@@ -1,160 +1,148 @@
 # pyrefly: ignore [missing-import]
+
+# pyrefly: ignore [missing-import]
 from predict import (
     predict_diabetes,
     predict_heart,
     predict_kidney
 )
+
+try:
+    from backend.ml.predict import (
+        predict_diabetes,
+        predict_heart,
+        predict_kidney,
+    )
+    from backend.ml.feature_mapping import map_features
+
+except ModuleNotFoundError:
+    # pyrefly: ignore [missing-import]
+    from predict import (
+        predict_diabetes,
+        predict_heart,
+        predict_kidney,
+    )
+    # pyrefly: ignore [missing-import]
+    from feature_mapping import map_features
+
 # pyrefly: ignore [missing-import]
 from feature_mapping import map_features
 
-print("\n" + "=" * 40)
-print("PARTIAL FEATURE VECTOR TEST")
-print("=" * 40)
+print("\n" + "=" * 60)
+print("MEDINTEL AI - MODEL TESTING")
+print("=" * 60)
 
-partial_report = {
+# ======================================================
+# Diabetes Test
+# ======================================================
+
+print("\nDIABETES TEST\n")
+
+diabetes_report = {
+
+    "Age": 45,
     "Glucose": 180,
-    "Age": 45
+    "BMI": 31.5
+
 }
 
-mapped_features = map_features(partial_report, "diabetes")
+mapped = map_features("diabetes", diabetes_report)
 
-print("Mapped Features:")
-print(mapped_features)
+print("Mapped Feature Vector")
+print(mapped)
 
-result = predict_diabetes(mapped_features)
+result = predict_diabetes(mapped)
 
-print("Prediction :", result["prediction"])
-print("Confidence :", f'{result["confidence"] * 100:.0f}%')
+print("\nPrediction :", result["prediction"])
+print("Confidence :", result["confidence"])
 print("Risk :", result["risk"])
+print("Probabilities :", result["probabilities"])
 
+# ======================================================
+# Heart Test
+# ======================================================
 
-print("\n" + "=" * 40)
-print("INVALID FEATURE VECTOR TEST")
-print("=" * 40)
+print("\n" + "=" * 60)
+print("HEART DISEASE TEST")
+print("=" * 60)
+
+heart_report = {
+
+    "Age": 63,
+    "Sex": 1,
+    "SystolicBP": 145,
+    "Glucose": 170
+
+}
+
+mapped = map_features("heart", heart_report)
+
+print("Mapped Feature Vector")
+print(mapped)
+
+result = predict_heart(mapped)
+
+print("\nPrediction :", result["prediction"])
+print("Confidence :", result["confidence"])
+print("Risk :", result["risk"])
+print("Probabilities :", result["probabilities"])
+
+# ======================================================
+# Kidney Test
+# ======================================================
+
+print("\n" + "=" * 60)
+print("KIDNEY DISEASE TEST")
+print("=" * 60)
+
+kidney_report = {
+
+    "Age": 48,
+    "BloodPressure": 80,
+    "SerumCreatinine": 2.2
+
+}
+
+mapped = map_features("kidney", kidney_report)
+
+print("Mapped Feature Vector")
+print(mapped)
+
+result = predict_kidney(mapped)
+
+print("\nPrediction :", result["prediction"])
+print("Confidence :", result["confidence"])
+print("Risk :", result["risk"])
+print("Probabilities :", result["probabilities"])
+
+# ======================================================
+# Invalid Input Test
+# ======================================================
+
+print("\n" + "=" * 60)
+print("INVALID INPUT TEST")
+print("=" * 60)
 
 invalid_report = {
-    "Glucose": -100,
-    "Age": -10
+
+    "Age": -10,
+    "Glucose": -100
+
 }
 
 try:
 
-    if invalid_report["Glucose"] < 0:
-        raise ValueError("Glucose cannot be negative.")
+    for key, value in invalid_report.items():
 
-    if invalid_report["Age"] < 0:
-        raise ValueError("Age cannot be negative.")
+        if value < 0:
+            raise ValueError(f"{key} cannot be negative.")
 
-    mapped_features = map_features(invalid_report, "diabetes")
-    result = predict_diabetes(mapped_features)
+    mapped = map_features("diabetes", invalid_report)
+
+    result = predict_diabetes(mapped)
 
     print(result)
 
 except ValueError as e:
-    print("Validation Error:", e)
 
-
-# ---------------------------
-# Diabetes Sample
-# ---------------------------
-
-diabetes_sample = [
-    6,
-    148,
-    72,
-    35,
-    0,
-    33.6,
-    0.627,
-    50
-]
-
-print("=" * 40)
-print("DIABETES TEST")
-print("=" * 40)
-
-result = predict_diabetes(diabetes_sample)
-
-print("Prediction :", result["prediction"])
-print("Confidence :", f'{result["confidence"] * 100:.0f}%')
-print("Probabilities :", result["probabilities"])
-print ("risk :", result["risk"])
-
-# ---------------------------
-# Heart Sample
-# ---------------------------
-
-heart_sample = [
-    63,
-    1,
-    3,
-    145,
-    233,
-    1,
-    0,
-    150,
-    0,
-    2.3,
-    0,
-    0,
-    1
-]
-
-print("\n" + "=" * 40)
-print("HEART DISEASE TEST")
-print("=" * 40)
-
-result = predict_heart(heart_sample)
-
-
-print("Prediction :", result["prediction"])
-print("Confidence :", f'{result["confidence"] * 100:.0f}%')
-print("Probabilities :", result["probabilities"])
-print ("risk :", result["risk"])
-
-
-# ---------------------------
-# Kidney Sample
-# ---------------------------
-
-kidney_sample = [
-    1,
-    48,
-    80,
-    1.020,
-    1,
-    0,
-    1,
-    1,
-    0,
-    0,
-    121,
-    36,
-    1.2,
-    135,
-    4.5,
-    15.4,
-    44,
-    7800,
-    5.2,
-    1,
-    1,
-    0,
-    1,
-    0,
-    0
-]
-
-print("\n" + "=" * 40)
-print("KIDNEY DISEASE TEST")
-print("=" * 40)
-
-result = predict_kidney(kidney_sample)
-
-
-print("Prediction :", result["prediction"])
-print("Confidence :", f'{result["confidence"] * 100:.0f}%')
-print("Probabilities :", result["probabilities"])
-print ("risk :", result["risk"])
-
-
+    print("Validation Error :", e)

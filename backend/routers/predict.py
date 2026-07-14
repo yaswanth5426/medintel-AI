@@ -20,6 +20,9 @@ from typing import Any, Dict, Optional
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
+from typing import Dict, Any
+
+from backend.ml.predict import predict_disease
 
 from backend.routers import prediction_engine as engine
 from backend.database import history_store
@@ -28,55 +31,33 @@ router = APIRouter(tags=["prediction"])
 
 
 class PredictRequest(BaseModel):
-    disease: str  # "diabetes" | "heart" | "kidney" (aliases accepted)
-    patient: Dict[str, Any] = {}
-    lab_values: Dict[str, Any] = {}
-    manual_values: Dict[str, Any] = {}
-    # Optional pre-flattened values; if given, merged over patient+lab_values.
-    report_values: Optional[Dict[str, Any]] = None
-    source: str = "Lab report"  # for the history row ("Lab report" | "Symptoms")
+    disease: str
+    lab_values: dict[str, Any]
 
 
 @router.post("/predict")
-def predict_disease(request: PredictRequest):
+def predict(request: PredictRequest):
+
     try:
-        flat = engine._flatten_report(request.patient, request.lab_values)
-        if request.report_values:
-            flat.update(request.report_values)
 
-        result = engine.predict(request.disease, flat, request.manual_values)
-    except ValueError as exc:
-        raise HTTPException(status_code=400, detail=str(exc))
+        result = predict_disease(
+            # pyrefly: ignore [unexpected-keyword]
+            disease=request.disease,
+            lab_values=request.lab_values
+        )
 
-    # Only completed predictions are recorded.
-    if result.get("status") == "success":
-        record = {
-            "date": datetime.now(timezone.utc).strftime("%b %d"),
-            "source": request.source,
-            "disease": result["disease_label"],
-            "risk_level": result["risk"],
-            "confidence": result["confidence"],
-            "probability": result["probability"],
-            "patient_name": (request.patient or {}).get("patient_name"),
-        }
-        try:
-            saved = history_store.save_prediction(record)
-            result["history_id"] = saved["id"]
-        except Exception as exc:  # noqa: BLE001 — persistence must never break a prediction
-            result["history_warning"] = f"Prediction succeeded but was not saved: {exc}"
+        return result
 
-    return result
+    except ValueError as e:
 
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
 
-@router.get("/predict/features/{disease}")
-def get_feature_specs(disease: str):
-    """Full feature spec for a disease — lets the frontend render a blank form."""
-    try:
-        key = engine._normalize(disease)
-    except ValueError as exc:
-        raise HTTPException(status_code=400, detail=str(exc))
-    return {
-        "disease": key,
-        "disease_label": engine.DISEASE_LABELS[key],
-        "features": [engine._public_spec(s) for s in engine.FEATURE_SPECS[key]],
-    }
+    except Exception as e:
+
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
+        )

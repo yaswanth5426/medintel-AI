@@ -10,69 +10,86 @@ import pandas as pd
 # -----------------------------
 
 MODELS = {
+
     "diabetes": {
-        "path": "backend/ml/models/diabetes_model.pkl",
+        "path": "backend/ml/models/diabetes_model_v2.pkl",
         "features": [
+            "Age",
+            "Gender",
             "Pregnancies",
             "Glucose",
-            "BloodPressure",
-            "SkinThickness",
-            "Insulin",
+            "HbA1c",
             "BMI",
-            "DiabetesPedigreeFunction",
-            "Age"
+            "BloodPressure",
+            "Insulin",
+            "Hypertension",
+            "Smoking",
+            "FamilyHistory",
+            "HeartDisease"
         ]
     },
 
     "heart": {
-        "path": "backend/ml/models/heart_model.pkl",
+        "path": "backend/ml/models/heart_model_v2.pkl",
         "features": [
-            "age",
-            "sex",
-            "cp",
-            "trestbps",
-            "chol",
-            "fbs",
-            "restecg",
-            "thalach",
-            "exang",
-            "oldpeak",
-            "slope",
-            "ca",
-            "thal"
+            "Age",
+            "Sex",
+            "Height",
+            "Weight",
+            "BMI",
+            "SystolicBP",
+            "DiastolicBP",
+            "TotalCholesterol",
+            "Glucose",
+            "Smoking",
+            "Diabetes",
+            "Hypertension",
+            "Alcohol",
+            "PhysicalActivity",
+            "HeartRate",
+            "Platelets",
+            "SerumCreatinine",
+            "SerumSodium",
+            "CPK"
         ]
     },
 
     "kidney": {
-        "path": "backend/ml/models/ckd_model.pkl",
+        "path": "backend/ml/models/ckd_model_v2.pkl",
         "features": [
-            "id",
-            "age",
-            "bp",
-            "sg",
-            "al",
-            "su",
-            "rbc",
-            "pc",
-            "pcc",
-            "ba",
-            "bgr",
-            "bu",
-            "sc",
-            "sod",
-            "pot",
-            "hemo",
-            "pcv",
-            "wc",
-            "rc",
-            "htn",
-            "dm",
-            "cad",
-            "appet",
-            "pe",
-            "ane"
+            "Age",
+            "BloodPressure",
+            "SpecificGravity",
+            "Albumin",
+            "Sugar",
+            "BloodGlucose",
+            "BloodUrea",
+            "SerumCreatinine",
+            "Sodium",
+            "Potassium",
+            "Hemoglobin",
+            "PackedCellVolume",
+            "WBC",
+            "RBC",
+            "Hypertension",
+            "Diabetes",
+            "CoronaryArteryDisease",
+            "Appetite",
+            "PedalEdema",
+            "Anemia",
+            "eGFR",
+            "UrineProteinCreatinineRatio",
+            "UrineOutput",
+            "SerumAlbumin",
+            "Calcium",
+            "Phosphate",
+            "BMI",
+            "Smoking",
+            "PhysicalActivity",
+            "CystatinC"
         ]
     }
+
 }
 
 
@@ -127,49 +144,88 @@ def explain_prediction(model_name, sample):
 if __name__ == "__main__":
 
     diabetes_sample = [
+        45,
+        0,
         2,
-        120,
-        70,
-        20,
+        180,
+        6.2,
+        31.5,
         80,
-        30,
+        150,
+        1,
+        0,
         0.45,
-        45
+        0
     ]
+
+    heart_sample = [
+        63,
+        1,
+        170,
+        72,
+        25.4,
+        145,
+        80,
+        220,
+        170,
+        1,
+        1,
+        1,
+        0,
+        1,
+        75,
+        262000,
+        1.1,
+        137,
+        250
+    ]
+
     kidney_sample = [
-    1,      # id
-    48,     # age
-    80,     # bp
-    1.020,  # sg
-    1,      # al
-    0,      # su
-    1,      # rbc
-    1,      # pc
-    0,      # pcc
-    0,      # ba
-    121,    # bgr
-    36,     # bu
-    1.2,    # sc
-    135,    # sod
-    4.5,    # pot
-    15.4,   # hemo
-    44,     # pcv
-    7800,   # wc
-    5.2,    # rc
-    1,      # htn
-    1,      # dm
-    0,      # cad
-    1,      # appet
-    0,      # pe
-    0       # ane
-]
+        48,
+        80,
+        1.015,
+        2,
+        2,
+        281,
+        103,
+        2.2,
+        135,
+        4.9,
+        12,
+        38,
+        9062,
+        4.3,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        62.1,
+        2.28,
+        1645,
+        3.25,
+        8.99,
+        4.23,
+        27.6,
+        0,
+        1,
+        1.75
+    ]
 
-    explanation = explain_prediction(
-        "kidney",
-        kidney_sample
-    )
+    for disease, sample in [
+        ("diabetes", diabetes_sample),
+        ("heart", heart_sample),
+        ("kidney", kidney_sample)
+    ]:
 
-    print("\nTop Features\n")
+        print("\n" + "=" * 60)
+        print(disease.upper())
+        print("=" * 60)
 
-    for feature, value in list(explanation.items())[:5]:
-        print(feature, value)    
+        explanation = explain_prediction(disease, sample)
+
+        print("\nTop 10 Important Features\n")
+
+        for feature, value in list(explanation.items())[:10]:
+            print(f"{feature:<35} {value:.4f}")
