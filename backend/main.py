@@ -36,7 +36,9 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from routers import chat, predict
+from backend.routers.upload import router as upload_router
+from backend.routers.history import router as history_router
+from backend.routers.predict import router as predict_router
 
 load_dotenv()
 
@@ -60,8 +62,27 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(predict.router)
-app.include_router(chat.router)
+app.include_router(predict_router)
+app.include_router(upload_router)
+app.include_router(history_router)
+
+# The real /chat router calls into the GenAI engineer's RAG + Gemini pipeline
+# (backend/rag/). It needs GEMINI_API_KEY set and a built FAISS index to even
+# import. Until that's configured locally, fall back to a dummy /chat so the
+# frontend can still be built and tested end to end.
+try:
+    from backend.routers.chat import router as chat_router
+    print("[MedIntel] /chat: using the real RAG + Gemini pipeline.")
+except Exception as exc:  # noqa: BLE001
+    # The RAG + Gemini pipeline (backend/rag/, GenAI engineer) needs its extra
+    # dependencies, a built FAISS index and GEMINI_API_KEY. When any of that is
+    # missing we fall back to a built-in offline responder so the rest of the
+    # API still runs. This is expected in a fresh/Member-3-only setup.
+    reason = type(exc).__name__
+    print(f"[MedIntel] /chat: RAG + Gemini not configured ({reason}); using the built-in offline responder.")
+    from backend.routers.chat_dummy import router as chat_router
+
+app.include_router(chat_router)
 
 
 @app.get("/")
