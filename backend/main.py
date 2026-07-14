@@ -1,12 +1,33 @@
+from fastapi import FastAPI
+
+from backend.routers.chat import router as chat_router
+
+
+app = FastAPI(
+    title="MedIntel AI",
+    version="1.0.0"
+)
+
+
+@app.get("/")
+def home():
+
+    return {
+        "message": "MedIntel AI Backend Running"
+    }
+
+
+app.include_router(chat_router)
 """
 MedIntel AI — FastAPI entry point.
 
 Owned by the Full Stack Engineer (Member 3). This file only wires together
-routers and app-level config — business logic lives in each router module and
-in backend/ml/ (ML engineer) and backend/rag/ (GenAI engineer).
+routers and app-level config — actual business logic lives in each router
+module and, later, in backend/ml/ (ML engineer) and backend/rag/ (GenAI
+engineer).
 
-Run from the project root with:
-    uvicorn backend.main:app --reload
+Run locally with:
+    uvicorn main:app --reload
 """
 
 import os
