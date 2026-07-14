@@ -1,15 +1,6 @@
-# pyrefly: ignore [missing-import]
-
-import joblib
-
-PREPROCESSOR_DIR = "backend/ml/models/preprocessors/"
-
-# ==========================================================
-# DIABETES FEATURES (v2)
-# ==========================================================
+from backend.ml.default_values import DEFAULT_VALUES
 
 DIABETES_FEATURES = [
-
     "Age",
     "Gender",
     "Pregnancies",
@@ -22,7 +13,6 @@ DIABETES_FEATURES = [
     "Smoking",
     "FamilyHistory",
     "HeartDisease"
-
 ]
 
 # ==========================================================
@@ -30,7 +20,6 @@ DIABETES_FEATURES = [
 # ==========================================================
 
 HEART_FEATURES = [
-
     "Age",
     "Sex",
     "Height",
@@ -50,7 +39,6 @@ HEART_FEATURES = [
     "SerumCreatinine",
     "SerumSodium",
     "CPK"
-
 ]
 
 # ==========================================================
@@ -58,7 +46,6 @@ HEART_FEATURES = [
 # ==========================================================
 
 CKD_FEATURES = [
-
     "Age",
     "BloodPressure",
     "SpecificGravity",
@@ -89,227 +76,312 @@ CKD_FEATURES = [
     "Smoking",
     "PhysicalActivity",
     "CystatinC"
-
 ]
 
 
-# ==========================================================
-# Feature Mapping
-# ==========================================================
+def get_value(value, default):
+    return value if value is not None else default
 
-def map_features(disease: str, lab_values: dict):
-    """
-    Converts extracted lab values into the exact feature vector
-    expected by the trained model.
 
-    Missing values are automatically filled using the defaults
-    saved during training.
-    """
+def calculate_bmi(height, weight):
 
-    disease = disease.lower()
+    if height is None or weight is None:
+        return DEFAULT_VALUES["BMI"]
 
-    # -------------------------------
-    # Diabetes
-    # -------------------------------
+    if height > 3:
+        height = height / 100
 
-    if disease == "diabetes":
+    return round(weight / (height * height), 2)
 
-        feature_order = DIABETES_FEATURES
 
-        defaults = joblib.load(
-            PREPROCESSOR_DIR + "diabetes_defaults_v2.pkl"
+def split_bp(bp):
+
+    if bp and "/" in str(bp):
+
+        s, d = bp.split("/")
+
+        return int(s), int(d)
+
+    return (
+        DEFAULT_VALUES["SystolicBP"],
+        DEFAULT_VALUES["DiastolicBP"]
+    )
+
+
+# ======================================================
+# Diabetes
+# ======================================================
+
+def prepare_diabetes_features(report, lab):
+
+    bmi = report.get("bmi")
+
+    if bmi is None:
+        bmi = calculate_bmi(
+            report.get("height"),
+            report.get("weight")
         )
 
-    # -------------------------------
-    # Heart
-    # -------------------------------
+    return {
 
-    elif disease == "heart":
+        "Age": get_value(report.get("age"), 40),
 
-        feature_order = HEART_FEATURES
+        "Gender": get_value(report.get("gender"), "Male"),
 
-        defaults = joblib.load(
-            PREPROCESSOR_DIR + "heart_defaults_v2.pkl"
-        )
+        "Pregnancies": DEFAULT_VALUES["Pregnancies"],
 
-    # -------------------------------
-    # Kidney
-    # -------------------------------
+        "Glucose": get_value(
+            lab.get("glucose"),
+            DEFAULT_VALUES["Glucose"]
+        ),
 
-    elif disease in ["kidney", "ckd"]:
+        "HbA1c": get_value(
+            lab.get("hba1c"),
+            DEFAULT_VALUES["HbA1c"]
+        ),
 
-        feature_order = CKD_FEATURES
+        "BMI": bmi,
 
-        defaults = joblib.load(
-            PREPROCESSOR_DIR + "ckd_defaults_v2.pkl"
-        )
+        "BloodPressure": get_value(
+            lab.get("blood_pressure"),
+            DEFAULT_VALUES["BloodPressure"]
+        ),
 
-    else:
+        "Insulin": DEFAULT_VALUES["Insulin"],
 
-        raise ValueError(
-            "Unsupported disease."
-        )
+        "Hypertension": DEFAULT_VALUES["Hypertension"],
 
-    # -------------------------------
-    # Build Feature Vector
-    # -------------------------------
+        "Smoking": DEFAULT_VALUES["Smoking"],
 
-    feature_vector = []
+        "FamilyHistory": DEFAULT_VALUES["FamilyHistory"],
 
-    for feature in feature_order:
-
-        value = lab_values.get(feature)
-
-        if value is None:
-
-            value = defaults.get(feature, 0)
-
-        feature_vector.append(value)
-
-    return feature_vector
-# ==========================================================
-# Feature Mapping
-# ==========================================================
-
-def map_features(disease: str, lab_values: dict):
-    """
-    Converts extracted lab values into the exact feature vector
-    expected by the trained model.
-
-    Missing values are automatically filled using the defaults
-    saved during training.
-    """
-
-    disease = disease.lower()
-
-    # -------------------------------
-    # Diabetes
-    # -------------------------------
-
-    if disease == "diabetes":
-
-        feature_order = DIABETES_FEATURES
-
-        defaults = joblib.load(
-            PREPROCESSOR_DIR + "diabetes_defaults_v2.pkl"
-        )
-
-    # -------------------------------
-    # Heart
-    # -------------------------------
-
-    elif disease == "heart":
-
-        feature_order = HEART_FEATURES
-
-        defaults = joblib.load(
-            PREPROCESSOR_DIR + "heart_defaults_v2.pkl"
-        )
-
-    # -------------------------------
-    # Kidney
-    # -------------------------------
-
-    elif disease in ["kidney", "ckd"]:
-
-        feature_order = CKD_FEATURES
-
-        defaults = joblib.load(
-            PREPROCESSOR_DIR + "ckd_defaults_v2.pkl"
-        )
-
-    else:
-
-        raise ValueError(
-            "Unsupported disease."
-        )
-
-    # -------------------------------
-    # Build Feature Vector
-    # -------------------------------
-
-    feature_vector = []
-
-    for feature in feature_order:
-
-        value = lab_values.get(feature)
-
-        if value is None:
-
-            value = defaults.get(feature, 0)
-
-        feature_vector.append(value)
-
-    return feature_vector
-
-# ==========================================================
-# Test
-# ==========================================================
-
-if __name__ == "__main__":
-
-    # -----------------------------
-    # Diabetes Test
-    # -----------------------------
-
-    diabetes_report = {
-
-        "Age": 45,
-        "Glucose": 180,
-        "BMI": 31.5
+        "HeartDisease": DEFAULT_VALUES["HeartDisease"]
 
     }
 
-    diabetes_features = map_features(
-        "diabetes",
-        diabetes_report
+
+# ======================================================
+# Heart
+# ======================================================
+
+def prepare_heart_features(report, lab):
+
+    bmi = report.get("bmi")
+
+    if bmi is None:
+        bmi = calculate_bmi(
+            report.get("height"),
+            report.get("weight")
+        )
+
+    systolic, diastolic = split_bp(
+        lab.get("blood_pressure")
     )
 
-    print("=" * 60)
-    print("DIABETES")
-    print("=" * 60)
-    print(diabetes_features)
+    return {
 
-    # -----------------------------
-    # Heart Test
-    # -----------------------------
+        "Age": get_value(report.get("age"), 40),
 
-    heart_report = {
+        "Sex": get_value(report.get("gender"), "Male"),
 
-        "Age": 55,
-        "SystolicBP": 145,
-        "Glucose": 170
+        "Height": get_value(
+            report.get("height"),
+            DEFAULT_VALUES["Height"]
+        ),
+
+        "Weight": get_value(
+            report.get("weight"),
+            DEFAULT_VALUES["Weight"]
+        ),
+
+        "BMI": bmi,
+
+        "SystolicBP": systolic,
+
+        "DiastolicBP": diastolic,
+
+        "TotalCholesterol": get_value(
+            lab.get("cholesterol"),
+            DEFAULT_VALUES["TotalCholesterol"]
+        ),
+
+        "Glucose": get_value(
+            lab.get("glucose"),
+            DEFAULT_VALUES["Glucose"]
+        ),
+
+        "Smoking": DEFAULT_VALUES["Smoking"],
+
+        "Diabetes": DEFAULT_VALUES["Diabetes"],
+
+        "Hypertension": DEFAULT_VALUES["Hypertension"],
+
+        "Alcohol": DEFAULT_VALUES["Alcohol"],
+
+        "PhysicalActivity": DEFAULT_VALUES["PhysicalActivity"],
+
+        "HeartRate": get_value(
+            lab.get("heart_rate"),
+            DEFAULT_VALUES["HeartRate"]
+        ),
+
+        "Platelets": get_value(
+            lab.get("platelets"),
+            DEFAULT_VALUES["Platelets"]
+        ),
+
+        "SerumCreatinine": get_value(
+            lab.get("serum_creatinine"),
+            DEFAULT_VALUES["SerumCreatinine"]
+        ),
+
+        "SerumSodium": get_value(
+            lab.get("sodium"),
+            DEFAULT_VALUES["Sodium"]
+        ),
+
+        "CPK": get_value(
+            lab.get("cpk"),
+            DEFAULT_VALUES["CPK"]
+        )
 
     }
 
-    heart_features = map_features(
-        "heart",
-        heart_report
-    )
 
-    print("=" * 60)
-    print("HEART")
-    print("=" * 60)
-    print(heart_features)
+# ======================================================
+# CKD
+# ======================================================
 
-    # -----------------------------
-    # Kidney Test
-    # -----------------------------
+def prepare_ckd_features(report, lab):
 
-    kidney_report = {
+    bmi = report.get("bmi")
 
-        "Age": 50,
-        "BloodPressure": 90,
-        "SerumCreatinine": 2.3
+    if bmi is None:
+        bmi = calculate_bmi(
+            report.get("height"),
+            report.get("weight")
+        )
+
+    return {
+
+        "Age": get_value(report.get("age"), 40),
+
+        "BloodPressure": get_value(
+            lab.get("blood_pressure"),
+            DEFAULT_VALUES["BloodPressure"]
+        ),
+
+        "SpecificGravity": get_value(
+            lab.get("specific_gravity"),
+            DEFAULT_VALUES["SpecificGravity"]
+        ),
+
+        "Albumin": get_value(
+            lab.get("albumin"),
+            DEFAULT_VALUES["Albumin"]
+        ),
+
+        "Sugar": get_value(
+            lab.get("sugar"),
+            DEFAULT_VALUES["Sugar"]
+        ),
+
+        "BloodGlucose": get_value(
+            lab.get("glucose"),
+            DEFAULT_VALUES["BloodGlucose"]
+        ),
+
+        "BloodUrea": get_value(
+            lab.get("blood_urea"),
+            DEFAULT_VALUES["BloodUrea"]
+        ),
+
+        "SerumCreatinine": get_value(
+            lab.get("serum_creatinine"),
+            DEFAULT_VALUES["SerumCreatinine"]
+        ),
+
+        "Sodium": get_value(
+            lab.get("sodium"),
+            DEFAULT_VALUES["Sodium"]
+        ),
+
+        "Potassium": get_value(
+            lab.get("potassium"),
+            DEFAULT_VALUES["Potassium"]
+        ),
+
+        "Hemoglobin": get_value(
+            lab.get("hemoglobin"),
+            DEFAULT_VALUES["Hemoglobin"]
+        ),
+
+        "PackedCellVolume": get_value(
+            lab.get("packed_cell_volume"),
+            DEFAULT_VALUES["PackedCellVolume"]
+        ),
+
+        "WBC": get_value(
+            lab.get("wbc"),
+            DEFAULT_VALUES["WBC"]
+        ),
+
+        "RBC": get_value(
+            lab.get("rbc"),
+            DEFAULT_VALUES["RBC"]
+        ),
+
+        "Hypertension": DEFAULT_VALUES["Hypertension"],
+
+        "Diabetes": DEFAULT_VALUES["Diabetes"],
+
+        "CoronaryArteryDisease": DEFAULT_VALUES["CoronaryArteryDisease"],
+
+        "Appetite": DEFAULT_VALUES["Appetite"],
+
+        "PedalEdema": DEFAULT_VALUES["PedalEdema"],
+
+        "Anemia": DEFAULT_VALUES["Anemia"],
+
+        "eGFR": get_value(
+            lab.get("egfr"),
+            DEFAULT_VALUES["eGFR"]
+        ),
+
+        "UrineProteinCreatinineRatio": get_value(
+            lab.get("urine_protein_creatinine_ratio"),
+            DEFAULT_VALUES["UrineProteinCreatinineRatio"]
+        ),
+
+        "UrineOutput": get_value(
+            lab.get("urine_output"),
+            DEFAULT_VALUES["UrineOutput"]
+        ),
+
+        "SerumAlbumin": get_value(
+            lab.get("serum_albumin"),
+            DEFAULT_VALUES["SerumAlbumin"]
+        ),
+
+        "Calcium": get_value(
+            lab.get("calcium"),
+            DEFAULT_VALUES["Calcium"]
+        ),
+
+        "Phosphate": get_value(
+            lab.get("phosphate"),
+            DEFAULT_VALUES["Phosphate"]
+        ),
+
+        "BMI": bmi,
+
+        "Smoking": DEFAULT_VALUES["Smoking"],
+
+        "PhysicalActivity": DEFAULT_VALUES["PhysicalActivity"],
+
+        "CystatinC": get_value(
+            lab.get("cystatin_c"),
+            DEFAULT_VALUES["CystatinC"]
+        )
 
     }
-
-    kidney_features = map_features(
-        "kidney",
-        kidney_report
-    )
-
-    print("=" * 60)
-    print("KIDNEY")
-    print("=" * 60)
-    print(kidney_features)    

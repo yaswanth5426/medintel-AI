@@ -16,3 +16,6 @@ frontend/.env
 .DS_Store
 .vscode/
 .idea/
+
+# MedIntel runtime data (Member 3)
+backend/database/history_store.json

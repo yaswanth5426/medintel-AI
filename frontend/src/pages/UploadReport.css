@@ -1,6 +1,6 @@
 .upload-page {
-  max-width: 600px;
-  margin: 3.5rem auto;
+  max-width: 860px;
+  margin: 3.25rem auto;
   padding: 0 1.5rem;
 }
 
@@ -17,17 +17,61 @@
   font-weight: 600;
   margin-bottom: 1.1rem;
 }
-
 .upload-page-badge svg { width: 14px; height: 14px; }
 
-.upload-page h2 { font-size: 1.6rem; }
-
+.upload-page h2 { font-size: 1.7rem; }
 .upload-page-sub {
   color: var(--text-dim);
   margin: 0.6rem 0 1.75rem;
   line-height: 1.6;
+  max-width: 620px;
 }
 
+/* ---------- Stepper ---------- */
+.stepper {
+  display: flex;
+  gap: 0.5rem;
+  margin: 0 0 2rem;
+}
+.step {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--text-faint);
+  font-size: 0.82rem;
+  font-weight: 600;
+  position: relative;
+  flex: 1;
+}
+.step-dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  font-size: 0.8rem;
+  flex: none;
+}
+.step-dot svg { width: 15px; height: 15px; }
+.step.current { color: var(--text); }
+.step.current .step-dot {
+  border-color: transparent;
+  background: var(--gradient);
+  color: #0A0E17;
+}
+.step.done { color: var(--cyan); }
+.step.done .step-dot { border-color: var(--cyan); color: var(--cyan); background: var(--cyan-soft); }
+.step-line {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+  margin-left: 0.25rem;
+}
+
+/* ---------- Status pills ---------- */
 .upload-status {
   display: flex;
   align-items: center;
@@ -37,73 +81,131 @@
   font-size: 0.85rem;
   line-height: 1.5;
 }
-
 .upload-status-icon { flex: none; width: 19px; height: 19px; }
-
 .upload-status-uploading { color: var(--text-dim); }
-
-.upload-status-success {
-  color: var(--text);
-  border-color: rgba(34, 211, 238, 0.35) !important;
-}
-.upload-status-success .upload-status-icon { color: var(--cyan); }
-
-.upload-status-error {
-  color: var(--text);
-  border-color: rgba(251, 113, 133, 0.4) !important;
-}
+.upload-status-error { color: var(--text); border-color: rgba(251, 113, 133, 0.4) !important; }
 .upload-status-error .upload-status-icon { color: var(--coral); }
-
 .upload-status-dot {
-  flex: none;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--amber);
-  animation: pulse 1s infinite;
+  flex: none; width: 8px; height: 8px; border-radius: 50%;
+  background: var(--amber); animation: pulse 1s infinite;
 }
 
-.upload-page-steps {
-  margin-top: 2.75rem;
-  padding-top: 1.75rem;
-  border-top: 1px solid var(--border);
+/* ---------- Review ---------- */
+.review-grid {
+  display: grid;
+  grid-template-columns: 0.85fr 1.15fr;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
 }
-
-.upload-page-steps h3 {
-  font-size: 1rem;
-  margin-bottom: 1.1rem;
+.info-card { padding: 1.25rem 1.35rem; }
+.info-card h3 {
+  display: flex; align-items: center; gap: 0.5rem;
+  font-size: 0.95rem; margin-bottom: 1rem;
 }
+.info-card h3 svg { width: 17px; height: 17px; color: var(--violet-bright); }
+.muted { color: var(--text-faint); font-size: 0.83rem; line-height: 1.55; }
 
-.upload-page-steps ol {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.9rem;
+.kv { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.55rem; }
+.kv li { display: flex; justify-content: space-between; gap: 1rem; font-size: 0.85rem; }
+.kv li span { color: var(--text-dim); text-transform: capitalize; }
+.kv li strong { color: var(--text); font-weight: 600; text-align: right; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.chip {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  padding: 0.35rem 0.7rem; border-radius: var(--radius-pill);
+  font-size: 0.76rem; border: 1px solid var(--border);
 }
+.chip strong { font-family: var(--font-mono); font-weight: 600; }
+.chip-found { color: var(--cyan); background: var(--cyan-soft); border-color: rgba(34,211,238,0.3); }
+.chip-missing { color: var(--text-faint); background: var(--surface); }
+.chip-auto { color: var(--violet-bright); background: var(--violet-soft); border-color: rgba(139,92,246,0.3); }
+.chip-auto svg { width: 13px; height: 13px; }
 
-.upload-page-steps li {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  color: var(--text-dim);
-  font-size: 0.88rem;
-  line-height: 1.6;
+.review-heading { font-size: 1.05rem; margin-bottom: 0.9rem; }
+
+.disease-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 0.85rem; margin-bottom: 1.5rem;
 }
-
-.upload-step-icon {
-  flex: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: var(--radius-sm);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  color: var(--violet-bright);
-  margin-top: 1px;
+.disease-card {
+  display: flex; flex-direction: column; align-items: center; gap: 0.7rem;
+  padding: 1.35rem 1rem; cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  color: var(--text);
 }
+.disease-card:hover { transform: translateY(-2px); border-color: var(--border-strong); }
+.disease-card:disabled { opacity: 0.55; cursor: wait; transform: none; }
+.disease-card.active { border-color: var(--violet); box-shadow: var(--shadow-glow); }
+.disease-icon {
+  display: flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px; border-radius: 14px;
+  background: var(--gradient); color: #0A0E17;
+}
+.disease-icon svg { width: 22px; height: 22px; }
+.disease-label { font-size: 0.84rem; font-weight: 600; text-align: center; }
 
-.upload-step-icon svg { width: 14px; height: 14px; }
+/* ---------- Dynamic form ---------- */
+.form-panel { padding: 1.5rem 1.6rem; margin-bottom: 1.25rem; }
+.form-panel-head h3 { font-size: 1.05rem; margin-bottom: 0.3rem; }
+.form-panel-head .muted { margin-bottom: 1rem; }
+.mapped-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.25rem; }
+.form-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: 1.1rem 1.35rem;
+}
+.form-error { color: var(--coral); font-size: 0.82rem; margin-top: 1rem; }
+.form-submit { margin-top: 1.5rem; }
+
+.back-btn { margin-top: 0.5rem; }
+
+/* ---------- Result ---------- */
+.result { display: flex; flex-direction: column; gap: 1rem; }
+.result-hero {
+  display: grid; grid-template-columns: 1fr 1fr; align-items: center;
+  gap: 1.5rem; padding: 1.75rem 1.85rem;
+}
+.result-verdict { display: flex; flex-direction: column; gap: 0.6rem; }
+.result-chip {
+  align-self: flex-start; padding: 0.3rem 0.8rem; border-radius: var(--radius-pill);
+  font-family: var(--font-mono); font-size: 0.74rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.05em;
+}
+.result-pred { font-size: 1.6rem; line-height: 1.15; }
+.result-meta { color: var(--text-dim); font-size: 0.9rem; }
+.result-meta strong { color: var(--text); }
+.risk-low { color: var(--cyan); background: var(--cyan-soft); }
+.risk-medium { color: var(--amber); background: var(--amber-soft); }
+.risk-high { color: var(--coral); background: var(--coral-soft); }
+
+.result-factors, .result-summary { padding: 1.4rem 1.6rem; }
+.result-factors h3, .result-summary h3 {
+  font-size: 1rem; margin-bottom: 1.1rem;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.result-summary h3 svg { width: 17px; height: 17px; color: var(--cyan); }
+.result-summary p { color: var(--text-dim); line-height: 1.7; font-size: 0.92rem; }
+
+.factor-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 1rem; }
+.factor-top { display: flex; justify-content: space-between; gap: 1rem; margin-bottom: 0.4rem; }
+.factor-label { font-size: 0.86rem; font-weight: 600; }
+.factor-value { font-family: var(--font-mono); font-size: 0.82rem; color: var(--text-dim); }
+.factor-bar { height: 7px; border-radius: var(--radius-pill); background: var(--surface-hover); overflow: hidden; }
+.factor-fill { display: block; height: 100%; border-radius: var(--radius-pill); transition: width 0.6s ease; }
+.factor-fill.up { background: linear-gradient(90deg, var(--amber), var(--coral)); }
+.factor-fill.down { background: linear-gradient(90deg, var(--cyan), var(--violet)); }
+.factor-note { font-size: 0.73rem; color: var(--text-faint); margin-top: 0.35rem; display: inline-block; }
+
+.result-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 0.25rem; }
+.result-disclaimer {
+  display: flex; align-items: center; gap: 0.5rem;
+  color: var(--text-faint); font-size: 0.78rem; margin-top: 0.5rem;
+}
+.result-disclaimer svg { width: 15px; height: 15px; color: var(--amber); flex: none; }
+
+@media (max-width: 720px) {
+  .review-grid, .result-hero { grid-template-columns: 1fr; }
+  .disease-grid { grid-template-columns: 1fr; }
+  .form-grid { grid-template-columns: 1fr; }
+  .step-label { display: none; }
+}

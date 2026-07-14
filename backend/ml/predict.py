@@ -1,78 +1,20 @@
 import joblib
 import numpy as np
 
-DIABETES_FEATURES = {
-    "Age",
-    "Gender",
-    "Pregnancies",
-    "Glucose",
-    "HbA1c",
-    "BMI",
-    "BloodPressure",
-    "Insulin",
-    "Hypertension",
-    "Smoking",
-    "FamilyHistory",
-    "HeartDisease"
-}
-
-HEART_FEATURES = {
-     "Age",
-    "Sex",
-    "Height",
-    "Weight",
-    "BMI",
-    "SystolicBP",
-    "DiastolicBP",
-    "TotalCholesterol",
-    "Glucose",
-    "Smoking",
-    "Diabetes",
-    "Hypertension",
-    "Alcohol",
-    "PhysicalActivity",
-    "HeartRate",
-    "Platelets",
-    "SerumCreatinine",
-    "SerumSodium",
-    "CPK"
-}
-
-CKD_FEATURES = {
-    "Age",
-    "BloodPressure",
-    "SpecificGravity",
-    "Albumin",
-    "Sugar",
-    "BloodGlucose",
-    "BloodUrea",
-    "SerumCreatinine",
-    "Sodium",
-    "Potassium",
-    "Hemoglobin",
-    "PackedCellVolume",
-    "WBC",
-    "RBC",
-    "Hypertension",
-    "Diabetes",
-    "CoronaryArteryDisease",
-    "Appetite",
-    "PedalEdema",
-    "Anemia",
-    "eGFR",
-    "UrineProteinCreatinineRatio",
-    "UrineOutput",
-    "SerumAlbumin",
-    "Calcium",
-    "Phosphate",
-    "BMI",
-    "Smoking",
-    "PhysicalActivity",
-    "CystatinC"
-}
+from backend.ml.feature_mapping import (
+    prepare_diabetes_features,
+    prepare_heart_features,
+    prepare_ckd_features,
+    DIABETES_FEATURES,
+    HEART_FEATURES,
+    CKD_FEATURES
+)
 
 
-# Load trained models
+# ======================================================
+# Load Models
+# ======================================================
+
 diabetes_model = joblib.load(
     "backend/ml/models/diabetes_model_v2.pkl"
 )
@@ -81,196 +23,372 @@ heart_model = joblib.load(
     "backend/ml/models/heart_model_v2.pkl"
 )
 
-kidney_model = joblib.load(
+ckd_model = joblib.load(
     "backend/ml/models/ckd_model_v2.pkl"
 )
 
 
-def calculate_risk(disease_probability):
-    """
-    Convert disease probability into a risk level.
-    """
+# ======================================================
+# Load Scalers
+# ======================================================
 
-    if disease_probability >= 0.90:
+diabetes_scaler = joblib.load(
+    "backend/ml/models/preprocessors/diabetes_scaler_v2.pkl"
+)
+
+heart_scaler = joblib.load(
+    "backend/ml/models/preprocessors/heart_scaler_v2.pkl"
+)
+
+ckd_scaler = joblib.load(
+    "backend/ml/models/preprocessors/ckd_scaler_v2.pkl"
+)
+
+
+# ======================================================
+# Helper Functions
+# ======================================================
+
+def calculate_risk(probability):
+
+    if probability >= 0.90:
         return "High"
 
-    elif disease_probability >= 0.70:
+    elif probability >= 0.70:
         return "Medium"
 
-    else:
-        return "Low"
+    return "Low"
 
 
-# ============================
+def create_feature_vector(feature_dict, feature_order):
+
+    """
+    Converts
+
+    {
+        Age:22,
+        BMI:24,
+        ...
+    }
+
+    ↓
+
+    [22,24,...]
+    """
+
+    return [
+
+        feature_dict[name]
+
+        for name in feature_order
+
+    ]
+
+
+# ======================================================
 # Diabetes Prediction
-# ============================
+# ======================================================
 
-def predict_diabetes(features):
+def predict_diabetes(feature_vector):
 
-    scaler = joblib.load("backend/ml/models/preprocessors/diabetes_scaler_v2.pkl")
+    feature_vector = np.array(
+        feature_vector
+    ).reshape(1, -1)
 
-    features = np.array(features).reshape(1, -1)
+    feature_vector = diabetes_scaler.transform(
+        feature_vector
+    )
 
-    prediction = diabetes_model.predict(features)[0]
+    prediction = diabetes_model.predict(
+        feature_vector
+    )[0]
 
-    probabilities = diabetes_model.predict_proba(features)[0]
+    probabilities = diabetes_model.predict_proba(
+        feature_vector
+    )[0]
 
-    confidence = max(probabilities)
+    confidence = float(max(probabilities))
 
-    disease_probability = probabilities[1]
-
-    risk = calculate_risk(disease_probability)
+    disease_probability = float(probabilities[1])
 
     return {
-        "prediction": "Diabetes" if prediction == 1 else "No Diabetes",
 
-        "confidence": round(float(confidence), 2),
+        "prediction":
 
-        "risk": risk,
+            "Diabetes"
+
+            if prediction == 1
+
+            else "No Diabetes",
+
+        "confidence":
+
+            round(confidence, 2),
+
+        "risk":
+
+            calculate_risk(
+                disease_probability
+            ),
 
         "probabilities": {
-            "No Diabetes": round(float(probabilities[0]), 2),
-            "Diabetes": round(float(probabilities[1]), 2)
+
+            "No Diabetes":
+
+                round(
+                    float(probabilities[0]),
+                    2
+                ),
+
+            "Diabetes":
+
+                round(
+                    float(probabilities[1]),
+                    2
+                )
+
         }
+
     }
 
 
-# ============================
-# Heart Disease Prediction
-# ============================
+# ======================================================
+# Heart Prediction
+# ======================================================
 
-def predict_heart(features):
+def predict_heart(feature_vector):
 
-    scaler = joblib.load("backend/ml/models/preprocessors/heart_scaler_v2.pkl")
+    feature_vector = np.array(
+        feature_vector
+    ).reshape(1, -1)
 
-    features = np.array(features).reshape(1, -1)
+    feature_vector = heart_scaler.transform(
+        feature_vector
+    )
 
-    prediction = heart_model.predict(features)[0]
+    prediction = heart_model.predict(
+        feature_vector
+    )[0]
 
-    probabilities = heart_model.predict_proba(features)[0]
+    probabilities = heart_model.predict_proba(
+        feature_vector
+    )[0]
 
-    confidence = max(probabilities)
+    confidence = float(max(probabilities))
 
-    disease_probability = probabilities[1]
-
-    risk = calculate_risk(disease_probability)
+    disease_probability = float(probabilities[1])
 
     return {
-        "prediction": "Heart Disease" if prediction == 1 else "No Heart Disease",
 
-        "confidence": round(float(confidence), 2),
+        "prediction":
 
-        "risk": risk,
+            "Heart Disease"
+
+            if prediction == 1
+
+            else "No Heart Disease",
+
+        "confidence":
+
+            round(confidence, 2),
+
+        "risk":
+
+            calculate_risk(
+                disease_probability
+            ),
 
         "probabilities": {
-            "No Heart Disease": round(float(probabilities[0]), 2),
-            "Heart Disease": round(float(probabilities[1]), 2)
+
+            "No Heart Disease":
+
+                round(
+                    float(probabilities[0]),
+                    2
+                ),
+
+            "Heart Disease":
+
+                round(
+                    float(probabilities[1]),
+                    2
+                )
+
         }
+
     }
 
 
-# ============================
-# Kidney Disease Prediction
-# ============================
+# ======================================================
+# CKD Prediction
+# ======================================================
 
-def predict_kidney(features):
+def predict_ckd(feature_vector):
 
-    scaler = joblib.load("backend/ml/models/preprocessors/ckd_scaler_v2.pkl")
+    feature_vector = np.array(
+        feature_vector
+    ).reshape(1, -1)
 
-    features = np.array(features).reshape(1, -1)
+    feature_vector = ckd_scaler.transform(
+        feature_vector
+    )
 
-    prediction = kidney_model.predict(features)[0]
+    prediction = ckd_model.predict(
+        feature_vector
+    )[0]
 
-    probabilities = kidney_model.predict_proba(features)[0]
+    probabilities = ckd_model.predict_proba(
+        feature_vector
+    )[0]
 
-    confidence = max(probabilities)
+    confidence = float(max(probabilities))
 
-    disease_probability = probabilities[1]
-
-    risk = calculate_risk(disease_probability)
+    disease_probability = float(probabilities[1])
 
     return {
-        "prediction": "Kidney Disease" if prediction == 1 else "No Kidney Disease",
 
-        "confidence": round(float(confidence), 2),
+        "prediction":
 
-        "risk": risk,
+            "Kidney Disease"
+
+            if prediction == 1
+
+            else "No Kidney Disease",
+
+        "confidence":
+
+            round(confidence, 2),
+
+        "risk":
+
+            calculate_risk(
+                disease_probability
+            ),
 
         "probabilities": {
-            "No Kidney Disease": round(float(probabilities[0]), 2),
-            "Kidney Disease": round(float(probabilities[1]), 2)
+
+            "No Kidney Disease":
+
+                round(
+                    float(probabilities[0]),
+                    2
+                ),
+
+            "Kidney Disease":
+
+                round(
+                    float(probabilities[1]),
+                    2
+                )
+
         }
+
     }
 
-# pyrefly: ignore [missing-import]
-try:
-    from backend.ml.feature_mapping import map_features
-except ModuleNotFoundError:
-    # pyrefly: ignore [missing-import]
-    from feature_mapping import map_features
-
+    # ======================================================
+# Main Prediction Function
+# ======================================================
 
 def predict_disease(
     disease: str,
+    report_details: dict,
     lab_values: dict
 ):
     """
-    Generic prediction function used by the backend API.
+    Generic prediction function.
+
+    Parameters
+    ----------
+    disease : str
+        diabetes | heart | ckd
+
+    report_details : dict
+        Output from report_extractor.py
+
+    lab_values : dict
+        Output from lab_value_parser.py
     """
 
     disease = disease.lower()
 
-    if disease not in ["diabetes", "heart", "kidney", "ckd"]:
+    # ---------------------------------------------
+    # Basic Validation
+    # ---------------------------------------------
+
+    if disease not in ["diabetes", "heart", "ckd", "kidney"]:
         raise ValueError("Unsupported disease.")
 
-    if not lab_values:
-        raise ValueError("Empty lab values.")
+    if report_details is None:
+        report_details = {}
 
-    # -----------------------------------
-    # Validate input
-    # -----------------------------------
+    if lab_values is None:
+        lab_values = {}
 
-    for key, value in lab_values.items():
-
-        if value is None:
-            continue
-
-        if not isinstance(value, (int, float)):
-            raise ValueError(f"{key} must be numeric.")
-
-        if value < 0:
-            raise ValueError(f"{key} cannot be negative.")
-
-    # -----------------------------------
-    # Feature Mapping
-    # -----------------------------------
-
-    features = map_features(
-        disease,
-        lab_values
-    )
-
-    # -----------------------------------
-    # Prediction
-    # -----------------------------------
+    # ---------------------------------------------
+    # Diabetes
+    # ---------------------------------------------
 
     if disease == "diabetes":
 
-        result = predict_diabetes(features)
+        mapped = prepare_diabetes_features(
+            report_details,
+            lab_values
+        )
+
+        feature_vector = create_feature_vector(
+            mapped,
+            DIABETES_FEATURES
+        )
+
+        result = predict_diabetes(
+            feature_vector
+        )
+
+    # ---------------------------------------------
+    # Heart Disease
+    # ---------------------------------------------
 
     elif disease == "heart":
 
-        result = predict_heart(features)
+        mapped = prepare_heart_features(
+            report_details,
+            lab_values
+        )
+
+        feature_vector = create_feature_vector(
+            mapped,
+            HEART_FEATURES
+        )
+
+        result = predict_heart(
+            feature_vector
+        )
+
+    # ---------------------------------------------
+    # CKD
+    # ---------------------------------------------
 
     else:
 
-        result = predict_kidney(features)
+        mapped = prepare_ckd_features(
+            report_details,
+            lab_values
+        )
 
-    # -----------------------------------
-    # Return
-    # -----------------------------------
+        feature_vector = create_feature_vector(
+            mapped,
+            CKD_FEATURES
+        )
+
+        result = predict_ckd(
+            feature_vector
+        )
 
     return {
+
+        "status": "success",
+
+        "disease": disease,
 
         "prediction": result["prediction"],
 
@@ -278,6 +396,95 @@ def predict_disease(
 
         "risk": result["risk"],
 
-        "probabilities": result["probabilities"]
+        "probabilities": result["probabilities"],
+
+        "features_used": mapped
 
     }
+
+
+# ======================================================
+# Testing
+# ======================================================
+
+if __name__ == "__main__":
+
+    report_details = {
+
+        "age": 48,
+
+        "gender": "Male",
+
+        "height": 170,
+
+        "weight": 74,
+
+        "bmi": None
+
+    }
+
+    lab_values = {
+
+        "glucose": 185,
+
+        "hba1c": 8.3,
+
+        "blood_pressure": "140/90",
+
+        "cholesterol": 220,
+
+        "blood_urea": 48,
+
+        "serum_creatinine": 1.8,
+
+        "hemoglobin": 13.5,
+
+        "platelets": 250000,
+
+        "wbc": 7600,
+
+        "rbc": 4.8,
+
+        "sodium": 138,
+
+        "potassium": 4.2,
+
+        "egfr": 65,
+
+        "albumin": None,
+
+        "specific_gravity": None,
+
+        "sugar": None,
+
+        "packed_cell_volume": None,
+
+        "heart_rate": None,
+
+        "cpk": None,
+
+        "urine_protein_creatinine_ratio": None,
+
+        "urine_output": None,
+
+        "serum_albumin": None,
+
+        "calcium": None,
+
+        "phosphate": None,
+
+        "cystatin_c": None
+
+    }
+
+    result = predict_disease(
+
+        disease="diabetes",
+
+        report_details=report_details,
+
+        lab_values=lab_values
+
+    )
+
+    print(result)
