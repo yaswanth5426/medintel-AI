@@ -300,6 +300,47 @@ function Stepper({ step }) {
   );
 }
 
+// Parse a normal-range string like "0.6-1.3", "60 - 200", "<90" or ">126".
+function parseRange(str) {
+  if (str == null) return null;
+  const s = String(str).replace(/[–—]/g, '-');
+  let m = s.match(/<\s*(\d+(?:\.\d+)?)/);
+  if (m) return { low: 0, high: parseFloat(m[1]) };
+  m = s.match(/>\s*(\d+(?:\.\d+)?)/);
+  if (m) return { low: parseFloat(m[1]), high: parseFloat(m[1]) * 1.5 };
+  m = s.match(/(\d+(?:\.\d+)?)\s*-\s*(\d+(?:\.\d+)?)/);
+  if (m) return { low: parseFloat(m[1]), high: parseFloat(m[2]) };
+  return null;
+}
+
+// First number out of a value that may be 2, "2", "140/90" or "182 mg/dL".
+function parseValue(v) {
+  if (typeof v === 'number') return v;
+  const m = String(v).match(/-?\d+(?:\.\d+)?/);
+  return m ? parseFloat(m[0]) : NaN;
+}
+
+const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
+
+// Fill % = how ABNORMAL the value is, so every flagged metric reads as a strong
+// bar and the length tracks severity (color already shows direction: warm=high,
+// cool=low). Inside the normal band the bar stays modest; the further past the
+// nearest bound the value sits, the fuller the bar — in either direction.
+function fillPercent(value, normalStr) {
+  const val = parseValue(value);
+  const range = parseRange(normalStr);
+  if (!isFinite(val) || !range || range.high <= range.low) return 60; // safe default
+  const { low, high } = range;
+  const span = high - low || 1;
+  if (val >= low && val <= high) {
+    return Math.round(22 + ((val - low) / span) * 23);   // within normal: 22-45%
+  }
+  const bound = val > high ? high : low;                 // nearest normal bound
+  const dist = val > high ? val - high : low - val;      // distance outside it
+  const rel = dist / (Math.abs(bound) || span);          // relative to that bound
+  return Math.round(clamp(58 + rel * 85, 58, 100));      // abnormal: 58-100%
+}
+
 function ResultView({ result, onAnother, onReset }) {
   const riskClass = `risk-${(result.risk || 'low').toLowerCase()}`;
   return (
@@ -332,11 +373,49 @@ function ResultView({ result, onAnother, onReset }) {
                 </div>
                 <div className="factor-bar">
                   <span className={`factor-fill ${f.direction?.includes('higher') ? 'up' : 'down'}`}
-                    style={{ width: '70%' }} />
+                    style={{ width: `${fillPercent(f.value, f.normal)}%` }} />
                 </div>
                 <span className="factor-note">{f.direction}{f.normal ? ` · normal ${f.normal}` : ''}</span>
               </li>
             ))}
+          </ul>
+        </div>
+      )}
+
+      {result.shap?.available && result.shap.top?.length > 0 && (
+        <div className="glass result-shap">
+          <h3><HiOutlineSparkles /> Why the model decided this</h3>
+          <p className="shap-caption">
+            SHAP shows how each value pushed the model&apos;s risk estimate
+            up (warm, to the right) or down (cool, to the left).
+          </p>
+          <ul className="shap-list">
+            {(() => {
+              const top = result.shap.top;
+              const maxAbs = Math.max(...top.map((s) => Math.abs(s.contribution))) || 1;
+              return top.map((s) => {
+                const w = (Math.abs(s.contribution) / maxAbs) * 50; // half-track
+                const up = s.direction === 'increases';
+                return (
+                  <li key={s.feature} className="shap-row">
+                    <span className="shap-label">
+                      {s.label}
+                      {s.value != null && s.value !== '' && (
+                        <em> {String(s.value)}{s.unit ? ` ${s.unit}` : ''}</em>
+                      )}
+                    </span>
+                    <div className="shap-track">
+                      <span className="shap-axis" />
+                      <span
+                        className={`shap-bar ${up ? 'up' : 'down'}`}
+                        style={up ? { left: '50%', width: `${w}%` } : { right: '50%', width: `${w}%` }}
+                      />
+                    </div>
+                    <span className={`shap-tag ${up ? 'up' : 'down'}`}>{up ? '↑ risk' : '↓ risk'}</span>
+                  </li>
+                );
+              });
+            })()}
           </ul>
         </div>
       )}

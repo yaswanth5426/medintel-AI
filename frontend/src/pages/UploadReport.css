@@ -225,3 +225,18 @@
   padding: 0.15rem 0.45rem;
   border-radius: var(--radius-pill);
 }
+
+/* ---- SHAP explainability panel (diverging contribution chart) ---- */
+.result-shap .shap-caption { color: var(--text-faint); font-size: 0.8rem; margin: -0.25rem 0 0.85rem; }
+.shap-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.55rem; }
+.shap-row { display: grid; grid-template-columns: minmax(110px, 1.3fr) 2fr auto; align-items: center; gap: 0.75rem; }
+.shap-label { font-size: 0.85rem; color: var(--text); line-height: 1.2; }
+.shap-label em { color: var(--text-faint); font-style: normal; font-size: 0.78rem; }
+.shap-track { position: relative; height: 10px; background: var(--surface-hover); border-radius: var(--radius-pill); }
+.shap-axis { position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: var(--text-faint); opacity: 0.45; }
+.shap-bar { position: absolute; top: 0; height: 100%; border-radius: var(--radius-pill); transition: width 0.6s ease; }
+.shap-bar.up { background: linear-gradient(90deg, var(--amber), var(--coral)); }
+.shap-bar.down { background: linear-gradient(270deg, var(--cyan), var(--violet)); }
+.shap-tag { font-size: 0.72rem; font-weight: 600; white-space: nowrap; }
+.shap-tag.up { color: var(--coral); }
+.shap-tag.down { color: var(--cyan); }

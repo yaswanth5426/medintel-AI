@@ -104,6 +104,18 @@ def _summary(disease_label, prediction, risk, confidence, factors):
     return " ".join(parts)
 
 
+def _shap_explanation(disease_key, used_features):
+    """Best-effort SHAP explanation. Never raises: explainability must not be able
+    to break a prediction, so any failure just yields an empty (unavailable) result."""
+    if not used_features:
+        return {"available": False, "top": []}
+    try:
+        from backend.ml import shap_explainer
+        return shap_explainer.explain_from_features(disease_key, used_features, top_n=8)
+    except Exception as exc:  # noqa: BLE001 - degrade gracefully
+        return {"available": False, "error": str(exc), "top": []}
+
+
 def predict(disease, patient, lab_values, manual_values=None):
     """Run a prediction and return a frontend-friendly result dict."""
     key = _normalize(disease)
@@ -132,6 +144,8 @@ def predict(disease, patient, lab_values, manual_values=None):
     positive = not str(result.get("prediction", "")).lower().startswith("no ")
 
     factors = _key_factors(labs)
+    used = result.get("features_used", {})
+    shap_explanation = _shap_explanation(key, used)
     label = DISEASE_LABELS[key]
     confidence = float(result.get("confidence", max(probs.values()) if probs else 0.0))
     risk = result.get("risk", "Low")
@@ -146,7 +160,8 @@ def predict(disease, patient, lab_values, manual_values=None):
         "confidence": round(confidence, 4),
         "probability": round(positive_prob, 4),
         "probabilities": probs,
-        "used_features": result.get("features_used", {}),
+        "used_features": used,
         "key_factors": factors,
+        "shap": shap_explanation,
         "ai_summary": _summary(label, result.get("prediction"), risk, confidence, factors),
     }
