@@ -1,34 +1,35 @@
-# MedIntel AI — backend runtime dependencies.
-# Install into your virtual env:  pip install -r backend/requirements.txt
-# (Run the server from the PROJECT ROOT: uvicorn backend.main:app --reload)
+# MedIntel AI - backend runtime dependencies (production / deployment).
+# Run the server from the PROJECT ROOT:  uvicorn backend.main:app
+#
+# NOTE on the heavy ML/RAG libs (torch, xgboost): the Dockerfile installs
+# CPU-only PyTorch and xgboost --no-deps BEFORE this file so the image stays
+# lean (no ~2GB CUDA payload). A plain `pip install -r` here still works for
+# local dev; it will just pull the default wheels for your platform.
 
 # --- Web API core ---
 fastapi==0.115.6
 uvicorn[standard]==0.34.0
 pydantic==2.10.4
 python-dotenv==1.0.1
-python-multipart==0.0.20            # required by FastAPI for file uploads (/upload/report)
+python-multipart==0.0.20
 
-# --- ML prediction (loading + serving the XGBoost models via /predict) ---
-# The trained .pkl models are XGBoost sklearn-wrapper objects, so scikit-learn
-# and xgboost must be importable to unpickle them; joblib/numpy do the loading
-# and the raw->standardized scaling.
+# --- ML prediction (XGBoost v2 models via /predict + SHAP) ---
 joblib>=1.3
 numpy>=1.26
+scipy>=1.11
 scikit-learn>=1.3
-xgboost>=2.0
-pandas>=2.0                          # used by the scaler build + ML utilities
+pandas>=2.0
+xgboost==3.3.0          # pinned to match the saved v2 model pickles
 
 # --- PDF report processing (/upload/report) ---
-pymupdf>=1.24                        # imported as "fitz"
+pymupdf>=1.24           # imported as "fitz"
 
-# --- Optional: real RAG + Gemini chat pipeline (GenAI engineer) ---
-# The /chat endpoint automatically uses a built-in offline responder unless
-# these are installed AND a FAISS index + GEMINI_API_KEY are configured.
-# Uncomment to enable the real pipeline (large - pulls in PyTorch):
-# google-genai>=0.3
-# langchain>=0.2
-# langchain-community>=0.2
-# langchain-huggingface>=0.1
-# faiss-cpu>=1.8
-# sentence-transformers>=3.0
+# --- RAG + Gemini chat (/chat) ---
+google-genai>=0.3
+langchain-community>=0.3
+langchain-huggingface>=0.1
+sentence-transformers>=3.0   # pulls torch (Dockerfile pre-installs the CPU build)
+faiss-cpu>=1.9
+
+# --- Optional persistent history (used only if MONGODB_URI is set) ---
+pymongo>=4.6
