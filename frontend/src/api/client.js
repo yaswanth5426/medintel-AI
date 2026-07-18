@@ -6,43 +6,48 @@ const baseURL = import.meta.env.VITE_API_BASE_URL || 'https://medintel-ai-k39i.o
 
 const api = axios.create({
   baseURL,
-  timeout: 10000,
+  timeout: 90000,  // tolerate Render free-tier cold starts
 });
 
 /**
- * POST /predict — disease risk prediction (dummy response for now).
- * Real implementation lives in backend/ml/ (owned by the ML engineer).
+ * POST /upload/report — send a selected medical report PDF to the backend.
+ * Returns { status, data: { report, patient, lab_values } } (Member 2's route).
+ */
+export function uploadReport(file) {
+  const formData = new FormData();
+  formData.append('file', file);
+  // Let axios set the multipart Content-Type (with boundary) itself.
+  return api.post('/upload/report', formData).then((res) => res.data);
+}
+
+/**
+ * POST /predict — disease risk prediction.
+ * Body: { disease, patient, lab_values, manual_values }.
+ * Returns either { status: 'needs_user_input', missing_features, mapped_features }
+ * or { status: 'success', prediction, risk, confidence, key_factors, ai_summary }.
  */
 export function predictDisease(payload) {
   return api.post('/predict', payload).then((res) => res.data);
 }
 
 /**
- * POST /chat/ — medical Q&A / symptom chat.
- * Backed by the GenAI engineer's RAG + Gemini pipeline in backend/rag/,
- * with an automatic dummy fallback (see backend/main.py) while that isn't
- * configured locally. Request/response shape: { question } -> { answer, sources }.
+ * GET /predict/features/:disease — full feature spec (used to render a blank
+ * manual-entry form when there's no report to pre-fill from).
+ */
+export function getFeatureSpecs(disease) {
+  return api.get(`/predict/features/${disease}`).then((res) => res.data);
+}
+
+/**
+ * POST /chat/ — medical Q&A / symptom chat (GenAI engineer's RAG + Gemini,
+ * with a dummy fallback in the backend). Shape: { question } -> { answer, sources }.
  */
 export function sendChatMessage(question) {
   return api.post('/chat/', { question }).then((res) => res.data);
 }
 
 /**
- * POST /upload — send a selected medical report PDF to the backend.
- * Placeholder response for now (backend/routers/upload.py) — real PDF
- * parsing belongs to backend/pdf_processing/ and isn't implemented yet.
- */
-export function uploadReport(file) {
-  const formData = new FormData();
-  formData.append('file', file);
-  // Let axios set the multipart Content-Type (with boundary) itself.
-  return api.post('/upload', formData).then((res) => res.data);
-}
-
-/**
  * GET /history — prediction history for the Dashboard.
- * Placeholder data for now (backend/routers/history.py) — real persistence
- * belongs to backend/database/ (MongoDB) and isn't implemented yet.
  */
 export function getHistory() {
   return api.get('/history').then((res) => res.data);

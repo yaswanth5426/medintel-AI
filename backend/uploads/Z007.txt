@@ -1,0 +1,240 @@
+Report Status    
+Female
+26 Years
+:
+:
+:
+:
+Age
+Gender
+Reported        
+P
+27/2/2023   3:09:00PM
+SELF
+Z00707
+  DUMMY
+:
+:
+:
+:
+:
+Name        
+Lab No.    
+Ref By 
+Collected       
+A/c Status 
+27/2/2023  5:19:43PM
+Final
+Collected at    :
+Processed at      :
+PRODUCTION TEST COLLECTION CENTRE
+SECTOR - 18, BLOCK-E  ROHINI
+DELHI 110085
+LPL-NATIONAL REFERENCE LAB
+National Reference laboratory, Block E, 
+Sector 18, Rohini, New Delhi -110085
+Test Report 
+Test Name
+Results
+Units
+Bio. Ref. Interval
+KIDNEY PANEL; KFT,SERUM
+2.00
+Creatinine
+(Modified Jaffe,Kinetic)
+ 0.55 - 1.02 
+mg/dL
+34.68
+GFR Estimated
+ <90 
+mL/min/1.73m2
+G3b (Moderate to severe 
+decrease in GFR)
+GFR Category
+  
+24.00
+Urea
+ 13.00 - 43.00 
+mg/dL
+11.21
+Urea Nitrogen  Blood
+ 6.00 - 20.00 
+mg/dL
+6
+BUN/Creatinine Ratio
+  
+6.00
+Uric Acid
+(Uricase)
+ 2.60 - 6.00 
+mg/dL
+8.00
+Total Protein
+(Biuret)
+ 5.70 - 8.20 
+g/dL
+4.30
+Albumin
+(BCG)
+ 3.20 - 4.80 
+g/dL
+1.16
+A : G Ratio
+(Calculated)
+ 0.90 - 2.00 
+3.70
+Globulin(Calculated)
+  
+g/dL
+9.00
+Calcium, Total
+(Arsenazo III)
+ 8.70 - 10.40 
+mg/dL
+5.00
+Phosphorus
+(Molybdate UV)
+ 2.40 - 5.10 
+mg/dL
+140.00
+Sodium
+(Indirect ISE)
+ 136.00 - 145.00 
+mEq/L
+6.00
+Potassium
+(Indirect ISE)
+ 3.50 - 5.10 
+mEq/L
+80.00
+Chloride
+(Indirect ISE)
+ 98.00 - 107.00 
+mEq/L
+Note
+1.
+Estimated GFR  (eGFR) calculated using the 2021 CKD-EPI creatinine equation and GFR Category 
+reported as per KDIGO guideline 2012. 
+2.
+eGFR category G1 or G2 does not fulfil the criteria for CKD, in the absence of evidence of kidney 
+damage
+3.
+The BUN-to-creatinine ratio is used to differentiate prerenal and postrenal azotemia from renal 
+*Z00707*
+Page 1 of 2
+Report Status    
+Female
+26 Years
+:
+:
+:
+:
+Age
+Gender
+Reported        
+P
+27/2/2023   3:09:00PM
+SELF
+Z00707
+  DUMMY
+:
+:
+:
+:
+:
+Name        
+Lab No.    
+Ref By 
+Collected       
+A/c Status 
+27/2/2023  5:19:43PM
+Final
+Collected at    :
+Processed at      :
+PRODUCTION TEST COLLECTION CENTRE
+SECTOR - 18, BLOCK-E  ROHINI
+DELHI 110085
+LPL-NATIONAL REFERENCE LAB
+National Reference laboratory, Block E, 
+Sector 18, Rohini, New Delhi -110085
+Test Report 
+Test Name
+Results
+Units
+Bio. Ref. Interval
+azotemia. Because of considerable variability, it should be used only as a rough guide. Normally, the 
+BUN/creatinine ratio is about 10:1
+Dr Himangshu Mazumdar
+MD, Biochemistry
+Sr. Consultant Biochemist                                
+NRL - Dr Lal PathLabs Ltd
+Dr.Kamal Modi
+MD, Biochemistry
+Consultant Biochemist                                     
+NRL - Dr Lal PathLabs Ltd
+Dr Nimmi Kansal
+MD, Biochemistry
+Technical Director - Clinical Chemistry 
+& Biochemical Genetics                    
+NRL - Dr Lal PathLabs Ltd
+-------------------------------End of report --------------------------------
+AHEEEHAPMKIABKIOOEBMKINKAKPEFLFCNKKNCJLOBPCJOPAHEEEHA
+BNFFFNBPAOFGNGEOADJDEDFHAHFHACEHMGIKAOJPMDAPMPBNFFFNB
+GPFAACFPJNFNMACOFKDKIGJOGABFDCIIKFPCBNFBOKKKMLEDEGHOL
+CJFOPNFJJOMAMGCGEAKEDLPGMPHELFCIKMHOFNMFOMCHFKNEHGFCG
+ODMGGJFPPGLLHBCJHNKHFCIMCGHDCJKAOKFIBLOILEDGHKFPGKPCH
+EPNCHJFMEIEGIMBECJFCKKEGBGDCMECNOONEDKMNILAAEMEEBIPKO
+EOMCAHFHAFIEHBPMNHHPCKLIAHFHAKBFMLNMGKFFOKKJAHFHACPHK
+FGKPDDFGABGGDAGDHAHAHJPCGFEFBLABNCECBNFFOBDKGCCFBHDDK
+CFCADIFKGNILKMLNAMKABPPDFEFFPDKDKLNKBMMBKNCIBACDIFHGC
+PKNMGAFGOKCKNLNACALLBFLDIPLCFHKHPHFNBCGOJNDPKBOKCEHCP
+NEKBNJFJCAEGJBKGGLFDJEOKPLIFFNLHKFNDBEENLKCOLFGIKPJNL
+MNNFNNEHCEIOOGIAEGBAOKIDAHFHAFKHNKFGFLNPOLIIAHFHACHPL
+APBBBPAPBALONHHCOKIJFLELBCHCBCAHOGMIBNNBOLCDDHHCFABAJ
+HHHHHHHPHPHHHPHHPPHHPHHHHHPHPPHHPPPPHPPHPHHHPHPPHPHPP
+IMPORTANT INSTRUCTIONS
+ŸTest results released pertain to the specimen submitted.ŸAll test results are dependent on the quality of the sample received by the Laboratory . 
+ŸLaboratory investigations are only a tool to facilitate in arriving at a diagnosis and should be clinically correlated by the Referring Physician .ŸReport 
+delivery may be delayed due to unforeseen circumstances. Inconvenience is regretted .ŸCertain tests may require further testing at additional cost 
+for 
+derivation 
+of 
+exact 
+value. 
+Kindly 
+submit 
+request 
+within 
+72 hours 
+post 
+reporting.ŸTest 
+results 
+may 
+show 
+interlaboratory 
+variations.ŸThe 
+Courts/Forum at Delhi shall have exclusive jurisdiction in all disputes /claims concerning the test(s) & or results of test(s).ŸTest results are not valid 
+for 
+medico 
+legal 
+purposes.ŸThis 
+is 
+computer 
+generated 
+medical 
+diagnostic 
+report 
+that 
+has 
+been 
+validated 
+by 
+Authorized 
+Medical 
+Practitioner/Doctor.ŸThe report does not need physical signature.
+(#) Sample drawn from outside source.
+If Test results are alarming or unexpected, client is advised to contact the Customer Care immediately for possible remedial action. 
+Tel: +91-11-49885050,Fax: - +91-11-2788-2134, E-mail: lalpathlabs@lalpathlabs.com 
+National Reference lab, Delhi, a CAP (7171001) Accredited, ISO 9001:2015 (FS60411) & ISO 27001:2013 (616691) Certified laboratory.
+*Z00707*
+Page 2 of 2

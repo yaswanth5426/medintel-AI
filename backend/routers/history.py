@@ -1,29 +1,23 @@
 """
-GET /history - list past predictions for the Dashboard.
+GET /history — prediction history for the Dashboard (Member 3 / routers).
 
-Placeholder endpoint: returns a static list of example predictions so the
-Dashboard can be wired up before backend/database/ (MongoDB) is
-implemented. Owned by Member 3 - real persistence will read from
-backend/database/history_schema.py once that's built.
+Reads from backend/database/history_store.py, which uses MongoDB Atlas when
+configured and otherwise a local JSON file. Rows are shaped to match what the
+Dashboard renders: date, source, disease, risk_level, confidence.
 """
 
 from fastapi import APIRouter
 
-router = APIRouter(tags=["history"])
+from backend.database import history_store
 
-_PLACEHOLDER_HISTORY = [
-    {"date": "Jun 30", "source": "Symptoms", "disease": "Diabetes", "risk_level": "Low", "confidence": 0.22},
-    {"date": "Jul 1", "source": "Lab report", "disease": "Heart Disease", "risk_level": "Medium", "confidence": 0.54},
-    {"date": "Jul 2", "source": "Symptoms", "disease": "CKD", "risk_level": "Low", "confidence": 0.18},
-    {"date": "Jul 4", "source": "Lab report", "disease": "Diabetes", "risk_level": "High", "confidence": 0.81},
-    {"date": "Jul 5", "source": "Symptoms", "disease": "Heart Disease", "risk_level": "Medium", "confidence": 0.47},
-    {"date": "Jul 6", "source": "Lab report", "disease": "CKD", "risk_level": "Medium", "confidence": 0.39},
-]
+router = APIRouter(tags=["history"])
 
 
 @router.get("/history")
-def get_history():
+def get_history(limit: int = 50):
+    records = history_store.get_history(limit)
     return {
-        "predictions": _PLACEHOLDER_HISTORY,
-        "note": "Placeholder data - MongoDB persistence (backend/database/) isn't implemented yet.",
+        "predictions": records,
+        "count": len(records),
+        "note": "Live prediction history.",
     }

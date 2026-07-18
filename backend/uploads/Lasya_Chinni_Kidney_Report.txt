@@ -1,0 +1,51 @@
+Dr Lifeline Diagnostics
+NABL Accredited Laboratory   |   Nephrology & Renal Panel
+SAMPLE / EDUCATIONAL
+Name : Lasya Chinni
+Age / Sex : 29 / Female
+Patient ID : LC-2026-0718 (SAMPLE)
+Referred By : Dr. S. Rao
+Collected : 18/07/2026
+Reported : 18/07/2026
+KIDNEY FUNCTION TEST (KFT), SERUM
+Test Name
+Result
+Blood Urea
+46 mg/dL
+Reference: 13 - 43
+Serum Creatinine
+1.4 mg/dL
+Reference: 0.6 - 1.3
+eGFR
+58 mL/min/1.73m2
+Reference: > 90
+Uric Acid
+7.8 mg/dL
+Reference: 2.6 - 6.0
+Calcium
+10.9 mg/dL
+Reference: 8.7 - 10.4
+Phosphorus
+4.2 mg/dL
+Reference: 2.4 - 5.1
+Sodium
+139 mEq/L
+Reference: 136 - 145
+Potassium
+4.6 mEq/L
+Reference: 3.5 - 5.1
+Albumin
+4.1 g/dL
+Reference: 3.5 - 5.2
+URINE ROUTINE & MICROSCOPY
+Colour      : Pale yellow
+Appearance  : Slightly turbid
+pH          : 5.2 (acidic)
+RBC         : 8 - 10 /HPF  (haematuria)
+Crystals    : Calcium oxalate ++  /  Uric acid +
+Pus cells   : 4 - 6 /HPF
+Impression
+Elevated serum uric acid and calcium with acidic urine and calcium-oxalate crystals.
+Microscopic haematuria present. Findings are consistent with NEPHROLITHIASIS
+(kidney stones). Mildly reduced eGFR. Clinical correlation and renal ultrasound advised.
+This is a SAMPLE report generated for educational testing of MedIntel AI. Not a real diagnosis.

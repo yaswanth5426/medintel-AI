@@ -45,7 +45,7 @@ def load_vector_store():
     return vector_store
 
 
-def retrieve_documents(query: str, k: int = 3):
+def retrieve_documents(query: str, k: int = 6):
     """
     Retrieve the top-k relevant documents.
     """
@@ -55,7 +55,7 @@ def retrieve_documents(query: str, k: int = 3):
     results = db.max_marginal_relevance_search(
         query=query,
         k=k,
-        fetch_k=10
+        fetch_k=20
     )
 
     return results

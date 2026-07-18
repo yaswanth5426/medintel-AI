@@ -1,0 +1,29 @@
+# MedIntel AI - Render Blueprint (native Python, NO Docker).
+# Creates the backend API. The React frontend is hosted on Vercel (see DEPLOYMENT.md).
+# Docs: https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: medintel-api
+    runtime: python                 # native buildpack - no Dockerfile
+    region: oregon
+    # Full RAG loads PyTorch + MiniLM (~2GB RAM) -> needs the Standard plan.
+    # Drop to 'free' only if you disable the real chat (offline fallback).
+    plan: standard
+    buildCommand: bash render-build.sh
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      # cache the embedding model under the project dir so it persists to runtime
+      - key: HF_HOME
+        value: /opt/render/project/src/.hfcache
+      - key: SENTENCE_TRANSFORMERS_HOME
+        value: /opt/render/project/src/.hfcache
+      - key: GEMINI_API_KEY          # required for real RAG chat
+        sync: false
+      - key: MONGODB_URI             # optional: persistent history
+        sync: false
+      - key: CORS_ORIGINS            # optional: extra allowed origins
+        sync: false

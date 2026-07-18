@@ -1,104 +1,99 @@
+"""
+Patient-detail extractor (Member 3 / backend/pdf_processing).
+
+Pulls age, gender, height, weight and BMI out of a report's raw text.
+
+Robust to two layouts:
+  * inline / adjacent   ->  "Age : 26"   "Sex: Female"   "Age/Sex : 22 / M"
+  * transposed columns  ->  the label ("Age", "Gender") and its value
+                            ("26 Years", "Female") land on separate lines,
+                            far apart, the way Dr Lal PathLabs reports flatten.
+
+For the transposed case we fall back to standalone tokens found near the top of
+the report ("26 Years", "Female"/"Male").
+"""
+
 import re
 
 
+def _search(patterns, text, flags=re.IGNORECASE):
+    for pattern in patterns:
+        match = re.search(pattern, text, flags)
+        if match:
+            return match.group(1).strip()
+    return None
+
+
 def extract_report_details(text: str):
+    details = {"age": None, "gender": None, "height": None,
+               "weight": None, "bmi": None}
 
-    details = {
-        "patient_name": None,
-        "age": None,
-        "gender": None,
-        "hospital": None,
-        "report_date": None,
-        "doctor": None
-    }
+    header = "\n".join(text.splitlines()[:60])  # patient block is near the top
 
-    # -----------------------
-    # Patient Name
-    # -----------------------
-    match = re.search(
-        r"Name\s*:?\s*([A-Za-z0-9 ]+)",
-        text,
-        re.IGNORECASE
-    )
+    # -----------------------------------------------------------------
+    # AGE  -- prefer "26 Years" (reliable in transposed reports); only
+    # accept an "Age: N" match when N sits on the SAME line (no newline
+    # crossing, which is what produced the bogus age=3 before).
+    # -----------------------------------------------------------------
+    age = _search([
+        r"(\d{1,3})\s*(?:years?|yrs?)\b",
+        r"Age\s*/\s*Sex[ \t]*:?[ \t]*(\d{1,3})",
+        r"Age[ \t]*:?[ \t]*(\d{1,3})\b",
+    ], text)
+    if age and 0 < int(age) <= 120:
+        details["age"] = int(age)
 
-    if match:
-        details["patient_name"] = match.group(1).strip()
+    # -----------------------------------------------------------------
+    # GENDER  -- labelled first, then a standalone Male/Female near the top.
+    # -----------------------------------------------------------------
+    gender = _search([
+        r"Gender[ \t]*:?[ \t]*(Male|Female|Other)",
+        r"Sex[ \t]*:?[ \t]*(Male|Female|Other)",
+        r"Age\s*/\s*Sex[ \t]*:?[ \t]*\d+\s*/\s*(M|F)",
+    ], text)
+    if not gender:
+        gender = _search([r"\b(Male|Female)\b"], header)  # transposed layout
+    if gender:
+        g = gender.upper()
+        gender = "Male" if g in ("M", "MALE") else "Female" if g in ("F", "FEMALE") else gender.title()
+        details["gender"] = gender
 
-    # -----------------------
-    # Age
-    # -----------------------
-    match = re.search(
-        r"Age\s*:?\s*(\d+)",
-        text,
-        re.IGNORECASE
-    )
+    # -----------------------------------------------------------------
+    # HEIGHT / WEIGHT
+    # -----------------------------------------------------------------
+    height = _search([
+        r"Height\s*\(cm\)[ \t]*:?[ \t]*(\d+(?:\.\d+)?)",
+        r"Height[ \t]*:?[ \t]*(\d+(?:\.\d+)?)",
+    ], text)
+    if height:
+        details["height"] = float(height)
 
-    if match:
-        details["age"] = int(match.group(1))
+    weight = _search([
+        r"Weight\s*\(kg\)[ \t]*:?[ \t]*(\d+(?:\.\d+)?)",
+        r"Weight[ \t]*:?[ \t]*(\d+(?:\.\d+)?)",
+    ], text)
+    if weight:
+        details["weight"] = float(weight)
 
-    # -----------------------
-    # Gender
-    # -----------------------
-    match = re.search(
-        r"Gender\s*:?\s*(Male|Female|Other)",
-        text,
-        re.IGNORECASE
-    )
-
-    if match:
-        details["gender"] = match.group(1)
-
-    # -----------------------
-    # Report Date
-    # -----------------------
-    match = re.search(
-        r"Reported\s*.*?(\d{1,2}/\d{1,2}/\d{4})",
-        text,
-        re.IGNORECASE | re.DOTALL
-    )
-
-    if match:
-        details["report_date"] = match.group(1)
-
-    # -----------------------
-    # Hospital
-    # -----------------------
-
-    first_lines = "\n".join(text.splitlines()[:20])
-
-    if "lal pathlabs" in first_lines.lower():
-        details["hospital"] = "Dr Lal PathLabs"
-
-    elif "apollo" in first_lines.lower():
-        details["hospital"] = "Apollo Hospital"
-
-    elif "aig" in first_lines.lower():
-        details["hospital"] = "AIG Hospital"
-
-    elif "yashoda" in first_lines.lower():
-        details["hospital"] = "Yashoda Hospital"
-
-    # -----------------------
-    # Doctor
-    # -----------------------
-
-    doctors = re.findall(
-        r"Dr\.?\s+[A-Za-z ]+",
-        text
-    )
-
-    if doctors:
-        details["doctor"] = doctors[0].strip()
+    # -----------------------------------------------------------------
+    # BMI  (use printed value, else derive from height + weight)
+    # -----------------------------------------------------------------
+    bmi = _search([r"BMI[ \t]*:?[ \t]*(\d+(?:\.\d+)?)"], text)
+    if bmi:
+        details["bmi"] = float(bmi)
+    elif details["height"] and details["weight"]:
+        h = details["height"]
+        if h > 3:                       # cm -> m
+            h /= 100
+        details["bmi"] = round(details["weight"] / (h * h), 2)
 
     return details
-"""
-Orchestrates the PDF workflow end to end: pdf_parser -> ocr (if needed) ->
-lab_value_parser, returning a structured dict ready for the ML prediction
-router.
 
-Not implemented yet — placeholder for folder-structure consistency.
-Planned for a later day, owned by Member 3.
-"""
 
-# TODO: tie pdf_parser.py, ocr.py and lab_value_parser.py together and
-# call this from routers/upload.py once that router exists.
+if __name__ == "__main__":
+    transposed = "\n".join([
+        "Report Status", "Female", "26 Years", "Age", "Gender", "Z00707", "DUMMY",
+    ])
+    inline = "Patient Name : Yaswanth\nAge/Sex : 22 / M\nHeight : 172\nWeight : 70\n"
+    print("transposed:", extract_report_details(transposed))
+    print("inline    :", extract_report_details(inline))
