@@ -32,9 +32,18 @@ default_origins = ["http://localhost:5173", "http://127.0.0.1:5173"]
 extra_origins = os.getenv("CORS_ORIGINS", "")
 allow_origins = default_origins + [o.strip() for o in extra_origins.split(",") if o.strip()]
 
+# Allow the deployed frontend automatically: Render static sites, Vercel and
+# Netlify hand out generated subdomains, so match them by regex. Override with
+# CORS_ORIGIN_REGEX (or add exact origins via CORS_ORIGINS).
+allow_origin_regex = os.getenv(
+    "CORS_ORIGIN_REGEX",
+    r"https://.*\.(onrender\.com|vercel\.app|netlify\.app)",
+)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allow_origins,
+    allow_origin_regex=allow_origin_regex,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

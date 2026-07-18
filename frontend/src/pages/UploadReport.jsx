@@ -27,7 +27,7 @@ function describeError(err, fallback) {
     return `Backend responded ${err.response.status}: ${detail || err.response.statusText}. Check the backend terminal for the traceback.`;
   }
   if (err && err.request) {
-    const url = (err.config && err.config.baseURL) || 'http://localhost:8000';
+    const url = (err.config && err.config.baseURL) || 'https://medintel-ai-k39i.onrender.com';
     return `Can't reach the backend at ${url}. Is it running? Open ${url}/docs in your browser to confirm.`;
   }
   return fallback;
