@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Base URL for the FastAPI backend. Falls back to local dev default so the
 // app still works if a teammate forgets to set up their .env file.
-const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+const baseURL = import.meta.env.VITE_API_BASE_URL || 'https://medintel-ai-k39i.onrender.com';
 
 const api = axios.create({
   baseURL,

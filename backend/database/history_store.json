@@ -1,0 +1,145 @@
+[
+  {
+    "date": "Jul 14",
+    "source": "Lab report",
+    "disease": "Diabetes",
+    "risk_level": "Low",
+    "confidence": 0.99,
+    "probability": 0.01,
+    "patient_name": null,
+    "id": "7f088ea73c4143518767548da6424e86",
+    "timestamp": "2026-07-14T06:49:40.820873+00:00"
+  },
+  {
+    "date": "Jul 14",
+    "source": "Lab report",
+    "disease": "Chronic Kidney Disease",
+    "risk_level": "Low",
+    "confidence": 0.87,
+    "probability": 0.13,
+    "patient_name": null,
+    "id": "f10c9f11b34345d5b6585f7d4948e779",
+    "timestamp": "2026-07-14T07:03:10.375410+00:00"
+  },
+  {
+    "date": "Jul 14",
+    "source": "Lab report",
+    "disease": "Chronic Kidney Disease",
+    "risk_level": "Low",
+    "confidence": 0.87,
+    "probability": 0.13,
+    "patient_name": null,
+    "id": "0f3243fbaf7946b3837b489c16f7dd77",
+    "timestamp": "2026-07-14T07:06:01.215605+00:00"
+  },
+  {
+    "date": "Jul 14",
+    "source": "Lab report",
+    "disease": "Chronic Kidney Disease",
+    "risk_level": "Low",
+    "confidence": 0.97,
+    "probability": 0.03,
+    "patient_name": null,
+    "id": "42b964f29c7d40868813758149eb3a77",
+    "timestamp": "2026-07-14T07:06:45.835910+00:00"
+  },
+  {
+    "date": "Jul 14",
+    "source": "Lab report",
+    "disease": "Chronic Kidney Disease",
+    "risk_level": "Low",
+    "confidence": 0.97,
+    "probability": 0.03,
+    "patient_name": null,
+    "id": "483771af155144e3bdeef9979dc2bcb2",
+    "timestamp": "2026-07-14T07:33:30.775105+00:00"
+  },
+  {
+    "date": "Jul 18",
+    "source": "Lab report",
+    "disease": "Chronic Kidney Disease",
+    "risk_level": "Low",
+    "confidence": 0.94,
+    "probability": 0.06,
+    "patient_name": null,
+    "id": "3d3c080e1a7e432d940e9599294f4160",
+    "timestamp": "2026-07-18T05:20:52.147936+00:00"
+  },
+  {
+    "date": "Jul 18",
+    "source": "Lab report",
+    "disease": "Chronic Kidney Disease",
+    "risk_level": "Low",
+    "confidence": 0.98,
+    "probability": 0.02,
+    "patient_name": null,
+    "id": "dba87389f27943c3ac5f528e19d96178",
+    "timestamp": "2026-07-18T07:36:43.034088+00:00"
+  },
+  {
+    "date": "Jul 18",
+    "source": "Lab report",
+    "disease": "Diabetes",
+    "risk_level": "Low",
+    "confidence": 1.0,
+    "probability": 0.0,
+    "patient_name": null,
+    "id": "2329a872dd0948b88b668a76c2df40ab",
+    "timestamp": "2026-07-18T07:54:23.824481+00:00"
+  },
+  {
+    "date": "Jul 18",
+    "source": "Lab report",
+    "disease": "Chronic Kidney Disease",
+    "risk_level": "Low",
+    "confidence": 0.98,
+    "probability": 0.02,
+    "patient_name": null,
+    "id": "3282e19a6c484a0c84bc13b4c4d7a7b7",
+    "timestamp": "2026-07-18T07:56:14.820822+00:00"
+  },
+  {
+    "date": "Jul 18",
+    "source": "Lab report",
+    "disease": "Chronic Kidney Disease",
+    "risk_level": "Low",
+    "confidence": 0.98,
+    "probability": 0.02,
+    "patient_name": null,
+    "id": "897148e174e543d5b041d9e95e089681",
+    "timestamp": "2026-07-18T08:04:48.180823+00:00"
+  },
+  {
+    "date": "Jul 18",
+    "source": "Lab report",
+    "disease": "Chronic Kidney Disease",
+    "risk_level": "Low",
+    "confidence": 0.97,
+    "probability": 0.03,
+    "patient_name": null,
+    "id": "0249603e34134f7f8ce29ca765ed7fff",
+    "timestamp": "2026-07-18T08:13:06.982191+00:00"
+  },
+  {
+    "date": "Jul 18",
+    "source": "Lab report",
+    "disease": "Chronic Kidney Disease",
+    "risk_level": "Low",
+    "confidence": 0.97,
+    "probability": 0.03,
+    "patient_name": null,
+    "id": "6b306f9e66bc44f4bbbfe0405d3657de",
+    "timestamp": "2026-07-18T09:12:41.353358+00:00"
+  },
+  {
+    "date": "Jul 18",
+    "source": "Lab report",
+    "disease": "Chronic Kidney Disease",
+    "risk_level": "Low",
+    "confidence": 0.97,
+    "probability": 0.03,
+    "patient_name": null,
+    "id": "8a558673082a45d3adb9c23f31845e22",
+    "timestamp": "2026-07-18T19:03:59.665980+00:00"
+  }
+]
