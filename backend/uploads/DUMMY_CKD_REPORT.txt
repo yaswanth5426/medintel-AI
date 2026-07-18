@@ -1,0 +1,43 @@
+Dr Lifeline Diagnostics
+NABL Accredited Laboratory  |  Sample: Serum
+KIDNEY FUNCTION TEST (KFT)
+Name : Ramesh Kumar (DUMMY)
+Age/Sex : 54 / Male
+Referred By : Dr. A. Verma
+Report Date : 18/07/2026
+Test Name
+Result
+Blood Urea
+82 mg/dL
+Reference: 13 - 43
+Serum Creatinine
+3.4 mg/dL
+Reference: 0.6 - 1.3
+eGFR
+19 mL/min/1.73m2
+Reference: > 90
+Uric Acid
+8.2 mg/dL
+Reference: 3.5 - 7.2
+Sodium
+133 mEq/L
+Reference: 136 - 145
+Potassium
+5.8 mEq/L
+Reference: 3.5 - 5.1
+Calcium
+8.1 mg/dL
+Reference: 8.7 - 10.4
+Phosphorus
+6.2 mg/dL
+Reference: 2.4 - 5.1
+Albumin
+3.0 g/dL
+Reference: 3.5 - 5.2
+Hemoglobin
+9.5 g/dL
+Reference: 13.0 - 17.0
+Blood Pressure
+154/96 mmHg
+Reference: 120/80
+Note: eGFR estimated using the 2021 CKD-EPI creatinine equation. Educational use only.

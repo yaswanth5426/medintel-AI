@@ -25,9 +25,10 @@ pymupdf>=1.24                        # imported as "fitz"
 # --- Optional: real RAG + Gemini chat pipeline (GenAI engineer) ---
 # The /chat endpoint automatically uses a built-in offline responder unless
 # these are installed AND a FAISS index + GEMINI_API_KEY are configured.
-# Uncomment to enable the real pipeline:
+# Uncomment to enable the real pipeline (large - pulls in PyTorch):
 # google-genai>=0.3
 # langchain>=0.2
 # langchain-community>=0.2
+# langchain-huggingface>=0.1
 # faiss-cpu>=1.8
 # sentence-transformers>=3.0

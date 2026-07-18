@@ -1,28 +1,18 @@
 """
-POST /predict — disease risk prediction (Member 3 / routers).
+POST /predict - disease risk prediction (Member 3 / routers).
 
-This is the thin HTTP layer over prediction_engine.py. It accepts the values
-extracted from a report (patient + lab_values, exactly as upload.py returns
-them) plus any manual answers the user gave for missing fields, and returns
-either:
+Thin HTTP layer over prediction_engine.predict(), which forwards the uploaded
+report's patient + lab_values (plus any manual overrides) to the ML team's v2
+pipeline (backend/ml/predict.py) and reshapes the result for the frontend.
 
-  * status = "needs_user_input"  + the list of missing feature specs, or
-  * status = "success"           + prediction, confidence, risk, key factors
-                                   and a plain-language AI summary.
-
-Successful predictions are saved to the history store so they show on the
-Dashboard. The ML models and feature mapping stay entirely inside
-prediction_engine.py / backend/ml — this file only orchestrates.
+Successful predictions are saved to the history store for the Dashboard.
 """
 
 from datetime import datetime, timezone
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from typing import Dict, Any
-
-from backend.ml.predict import predict_disease
 
 from backend.routers import prediction_engine as engine
 from backend.database import history_store
@@ -31,33 +21,41 @@ router = APIRouter(tags=["prediction"])
 
 
 class PredictRequest(BaseModel):
-    disease: str
-    lab_values: dict[str, Any]
+    disease: str  # "diabetes" | "heart" | "ckd"/"kidney"
+    patient: Dict[str, Any] = {}
+    lab_values: Dict[str, Any] = {}
+    manual_values: Dict[str, Any] = {}
+    source: str = "Lab report"  # for the history row
 
 
 @router.post("/predict")
-def predict(request: PredictRequest):
-
+def create_prediction(request: PredictRequest):
     try:
-
-        result = predict_disease(
-            # pyrefly: ignore [unexpected-keyword]
-            disease=request.disease,
-            lab_values=request.lab_values
+        result = engine.predict(
+            request.disease,
+            request.patient,
+            request.lab_values,
+            request.manual_values,
         )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    except Exception as exc:  # noqa: BLE001 - surface a clean message to the UI
+        raise HTTPException(status_code=500, detail=f"Prediction failed: {exc}")
 
-        return result
+    if result.get("status") == "success":
+        record = {
+            "date": datetime.now(timezone.utc).strftime("%b %d"),
+            "source": request.source,
+            "disease": result["disease_label"],
+            "risk_level": result["risk"],
+            "confidence": result["confidence"],
+            "probability": result["probability"],
+            "patient_name": (request.patient or {}).get("patient_name"),
+        }
+        try:
+            saved = history_store.save_prediction(record)
+            result["history_id"] = saved["id"]
+        except Exception as exc:  # noqa: BLE001 - persistence must never break a prediction
+            result["history_warning"] = f"Prediction succeeded but was not saved: {exc}"
 
-    except ValueError as e:
-
-        raise HTTPException(
-            status_code=400,
-            detail=str(e)
-        )
-
-    except Exception as e:
-
-        raise HTTPException(
-            status_code=500,
-            detail=str(e)
-        )
+    return result

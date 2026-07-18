@@ -1,6 +1,6 @@
 import './UploadReport.css';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import {
   HiOutlineArrowLeft,
   HiOutlineArrowPath,
@@ -39,36 +39,70 @@ const DISEASES = [
   { key: 'kidney', label: 'Chronic Kidney Disease', icon: GiKidneys },
 ];
 
-// Lab keys the backend may extract — for a friendly "what we found" panel.
+// Lab keys the v2 parser may return, for the "what we found" panel.
 const LAB_LABELS = {
-  fasting_glucose: 'Fasting glucose',
-  post_meal_glucose: 'Post-meal glucose',
+  glucose: 'Glucose',
   hba1c: 'HbA1c',
-  creatinine: 'Creatinine',
-  hemoglobin: 'Hemoglobin',
-  cholesterol: 'Cholesterol',
-  urea: 'Urea',
   blood_pressure: 'Blood pressure',
+  cholesterol: 'Cholesterol',
+  blood_urea: 'Blood urea',
+  serum_creatinine: 'Creatinine',
+  hemoglobin: 'Hemoglobin',
+  sodium: 'Sodium',
+  potassium: 'Potassium',
+  egfr: 'eGFR',
 };
+
+// Compact, editable "key values" the user can confirm/correct before predicting.
+// These are merged over whatever the parser extracted (sent as manual_values).
+const KEY_FIELDS = [
+  { name: 'age', label: 'Age', type: 'number', unit: 'years', min: 0, max: 120, step: 1, source: 'patient' },
+  { name: 'gender', label: 'Sex', type: 'select', source: 'patient',
+    options: [{ value: 'Male', label: 'Male' }, { value: 'Female', label: 'Female' }] },
+  { name: 'glucose', label: 'Glucose', type: 'number', unit: 'mg/dL', min: 0, max: 500, step: 1, normal: '70-140' },
+  { name: 'hba1c', label: 'HbA1c', type: 'number', unit: '%', min: 0, max: 20, step: 0.1, normal: '4-5.7' },
+  { name: 'blood_pressure', label: 'Blood pressure', type: 'number', unit: 'mmHg (systolic)', min: 0, max: 260, step: 1, normal: '90-120' },
+  { name: 'cholesterol', label: 'Cholesterol', type: 'number', unit: 'mg/dL', min: 0, max: 700, step: 1, normal: '<200' },
+  { name: 'serum_creatinine', label: 'Creatinine', type: 'number', unit: 'mg/dL', min: 0, max: 80, step: 0.1, normal: '0.6-1.3' },
+  { name: 'hemoglobin', label: 'Hemoglobin', type: 'number', unit: 'g/dL', min: 0, max: 25, step: 0.1, normal: '12-17' },
+];
 
 const STEPS = ['Upload', 'Review', 'Result'];
 
+// backend detected disease ("ckd") -> our picker key ("kidney")
+function toKey(detected) {
+  if (!detected) return null;
+  const d = String(detected).toLowerCase();
+  if (d.includes('kidney') || d === 'ckd') return 'kidney';
+  if (d.includes('heart') || d === 'cardiac') return 'heart';
+  if (d.includes('diabet')) return 'diabetes';
+  return null;
+}
+
 export default function UploadReport() {
-  const [step, setStep] = useState(0);            // 0 upload · 1 review · 2 result
+  const [step, setStep] = useState(0);
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
 
   const [patient, setPatient] = useState({});
   const [labs, setLabs] = useState({});
+  const [detected, setDetected] = useState(null);
 
   const [disease, setDisease] = useState(null);
-  const [missing, setMissing] = useState([]);
-  const [mapped, setMapped] = useState({});
   const [manual, setManual] = useState({});
   const [predicting, setPredicting] = useState(false);
   const [predictError, setPredictError] = useState('');
   const [result, setResult] = useState(null);
+
+  const seedManual = (p, l) => {
+    const seed = {};
+    KEY_FIELDS.forEach((f) => {
+      const src = f.source === 'patient' ? p : l;
+      if (src && src[f.name] !== undefined && src[f.name] !== null) seed[f.name] = src[f.name];
+    });
+    return seed;
+  };
 
   const handleFileSelect = async (selected) => {
     setFile(selected);
@@ -78,8 +112,15 @@ export default function UploadReport() {
     setUploading(true);
     try {
       const res = await uploadReport(selected);
-      setPatient(res?.data?.patient || {});
-      setLabs(res?.data?.lab_values || {});
+      const p = res?.data?.patient || {};
+      const l = res?.data?.lab_values || {};
+      setPatient(p);
+      setLabs(l);
+      const key = toKey(res?.disease_detected);
+      setDetected(key);
+      setDisease(key);
+      setManual(seedManual(p, l));
+      setResult(null);
       setStep(1);
     } catch (err) {
       setUploadError(describeError(err, "Couldn't reach the backend — make sure the API server is running, then try again."));
@@ -88,39 +129,10 @@ export default function UploadReport() {
     }
   };
 
-  // Choosing a condition asks the backend what it can auto-fill and what's missing.
-  const chooseDisease = async (key) => {
-    setDisease(key);
-    setManual({});
-    setResult(null);
-    setPredictError('');
-    setPredicting(true);
-    try {
-      const res = await predictDisease({ disease: key, patient, lab_values: labs });
-      if (res.status === 'needs_user_input') {
-        setMapped(res.mapped_features || {});
-        setMissing(res.missing_features || []);
-      } else if (res.status === 'success') {
-        setMapped(res.used_features || {});
-        setMissing([]);
-        setResult(res);
-        setStep(2);
-      }
-    } catch (err) {
-      setPredictError(describeError(err, 'Prediction failed — is the backend running?'));
-    } finally {
-      setPredicting(false);
-    }
-  };
-
   const setField = (name, value) => setManual((m) => ({ ...m, [name]: value }));
 
-  const allFilled = useMemo(
-    () => missing.every((m) => manual[m.name] !== undefined && manual[m.name] !== ''),
-    [missing, manual]
-  );
-
   const runPrediction = async () => {
+    if (!disease) { setPredictError('Pick a condition to assess first.'); return; }
     setPredicting(true);
     setPredictError('');
     try {
@@ -134,8 +146,7 @@ export default function UploadReport() {
         setResult(res);
         setStep(2);
       } else {
-        setMissing(res.missing_features || []);
-        setPredictError('Some values are still needed.');
+        setPredictError('Prediction did not complete — please try again.');
       }
     } catch (err) {
       setPredictError(describeError(err, 'Prediction failed — is the backend running?'));
@@ -145,13 +156,11 @@ export default function UploadReport() {
   };
 
   const reset = () => {
-    setStep(0); setFile(null); setPatient({}); setLabs({});
-    setDisease(null); setMissing([]); setMapped({}); setManual({}); setResult(null);
-    setUploadError(''); setPredictError('');
+    setStep(0); setFile(null); setPatient({}); setLabs({}); setDetected(null);
+    setDisease(null); setManual({}); setResult(null); setUploadError(''); setPredictError('');
   };
 
-  const extractedLabs = Object.entries(labs).filter(([, v]) => v !== null && v !== undefined);
-  const patientEntries = Object.entries(patient).filter(([, v]) => v);
+  const patientEntries = Object.entries(patient).filter(([, v]) => v !== null && v !== undefined && v !== '');
 
   return (
     <section className="upload-page">
@@ -160,13 +169,13 @@ export default function UploadReport() {
       </div>
       <h2>Upload &amp; analyze a report</h2>
       <p className="upload-page-sub">
-        Drop in a PDF, review what we pulled out, fill any gaps the model needs,
-        and get an explained risk read-out — all in one flow.
+        Drop in a PDF, confirm the key values we pulled out, and get an explained
+        risk read-out from the model.
       </p>
 
       <Stepper step={step} />
 
-      {/* ---------------- STEP 0 — UPLOAD ---------------- */}
+      {/* STEP 0 — UPLOAD */}
       {step === 0 && (
         <>
           <UploadBox file={file} onFileSelect={handleFileSelect} />
@@ -184,7 +193,7 @@ export default function UploadReport() {
         </>
       )}
 
-      {/* ---------------- STEP 1 — REVIEW ---------------- */}
+      {/* STEP 1 — REVIEW */}
       {step === 1 && (
         <div className="review">
           <div className="review-grid">
@@ -197,7 +206,7 @@ export default function UploadReport() {
                   ))}
                 </ul>
               ) : (
-                <p className="muted">No patient details detected — you can still continue.</p>
+                <p className="muted">No patient details detected — enter what you can below.</p>
               )}
             </div>
 
@@ -214,16 +223,14 @@ export default function UploadReport() {
                   );
                 })}
               </div>
-              {extractedLabs.length === 0 && (
-                <p className="muted">
-                  Nothing parsed cleanly from this PDF — no problem, you can enter
-                  the values the model needs on the next step.
-                </p>
-              )}
+              <p className="muted" style={{ marginTop: '0.85rem' }}>
+                Automatic extraction can miss or misread values — confirm the key
+                ones below before predicting.
+              </p>
             </div>
           </div>
 
-          <h3 className="review-heading">Choose a condition to assess</h3>
+          <h3 className="review-heading">Condition to assess</h3>
           <div className="disease-grid">
             {DISEASES.map((d) => {
               const Icon = d.icon;
@@ -231,69 +238,39 @@ export default function UploadReport() {
                 <button
                   key={d.key}
                   className={`disease-card glass ${disease === d.key ? 'active' : ''}`}
-                  onClick={() => chooseDisease(d.key)}
+                  onClick={() => setDisease(d.key)}
                   type="button"
-                  disabled={predicting}
                 >
                   <span className="disease-icon"><Icon /></span>
                   <span className="disease-label">{d.label}</span>
+                  {detected === d.key && <span className="disease-detected">detected</span>}
                 </button>
               );
             })}
           </div>
 
-          {predicting && !result && (
-            <div className="upload-status glass upload-status-uploading">
-              <span className="upload-status-dot" /> Mapping report values to the model…
+          <div className="glass form-panel">
+            <div className="form-panel-head">
+              <h3>Confirm key values</h3>
+              <p className="muted">Pre-filled from the report where possible. Edit any that look wrong; blanks fall back to model defaults.</p>
             </div>
-          )}
-
-          {/* Dynamic missing-value form */}
-          {disease && !predicting && missing.length > 0 && (
-            <div className="glass form-panel">
-              <div className="form-panel-head">
-                <h3>A few more values for {DISEASES.find((d) => d.key === disease)?.label}</h3>
-                <p className="muted">
-                  {Object.keys(mapped).length > 0
-                    ? `${Object.keys(mapped).length} value(s) came from the report. `
-                    : ''}
-                  {missing.length} still needed — the model asks for exactly these.
-                </p>
-              </div>
-
-              {Object.keys(mapped).length > 0 && (
-                <div className="mapped-row">
-                  {Object.entries(mapped).map(([k, v]) => (
-                    <span key={k} className="chip chip-auto">
-                      <HiOutlineCheckCircle /> {k}<strong>{String(v)}</strong>
-                    </span>
-                  ))}
-                </div>
-              )}
-
-              <div className="form-grid">
-                {missing.map((spec) => (
-                  <DynamicField
-                    key={spec.name}
-                    spec={spec}
-                    value={manual[spec.name]}
-                    onChange={setField}
-                  />
-                ))}
-              </div>
-
-              {predictError && <p className="form-error">{predictError}</p>}
-
-              <button
-                className="btn btn-primary form-submit"
-                onClick={runPrediction}
-                disabled={!allFilled || predicting}
-                type="button"
-              >
-                {predicting ? 'Predicting…' : 'Run prediction'} <HiOutlineSparkles />
-              </button>
+            <div className="form-grid">
+              {KEY_FIELDS.map((spec) => (
+                <DynamicField key={spec.name} spec={spec} value={manual[spec.name]} onChange={setField} />
+              ))}
             </div>
-          )}
+
+            {predictError && <p className="form-error">{predictError}</p>}
+
+            <button
+              className="btn btn-primary form-submit"
+              onClick={runPrediction}
+              disabled={predicting || !disease}
+              type="button"
+            >
+              {predicting ? 'Predicting…' : 'Run prediction'} <HiOutlineSparkles />
+            </button>
+          </div>
 
           <button className="btn btn-ghost back-btn" onClick={reset} type="button">
             <HiOutlineArrowLeft /> Start over
@@ -301,7 +278,7 @@ export default function UploadReport() {
         </div>
       )}
 
-      {/* ---------------- STEP 2 — RESULT ---------------- */}
+      {/* STEP 2 — RESULT */}
       {step === 2 && result && (
         <ResultView result={result} onAnother={() => setStep(1)} onReset={reset} />
       )}
@@ -323,8 +300,49 @@ function Stepper({ step }) {
   );
 }
 
+// Parse a normal-range string like "0.6-1.3", "60 - 200", "<90" or ">126".
+function parseRange(str) {
+  if (str == null) return null;
+  const s = String(str).replace(/[–—]/g, '-');
+  let m = s.match(/<\s*(\d+(?:\.\d+)?)/);
+  if (m) return { low: 0, high: parseFloat(m[1]) };
+  m = s.match(/>\s*(\d+(?:\.\d+)?)/);
+  if (m) return { low: parseFloat(m[1]), high: parseFloat(m[1]) * 1.5 };
+  m = s.match(/(\d+(?:\.\d+)?)\s*-\s*(\d+(?:\.\d+)?)/);
+  if (m) return { low: parseFloat(m[1]), high: parseFloat(m[2]) };
+  return null;
+}
+
+// First number out of a value that may be 2, "2", "140/90" or "182 mg/dL".
+function parseValue(v) {
+  if (typeof v === 'number') return v;
+  const m = String(v).match(/-?\d+(?:\.\d+)?/);
+  return m ? parseFloat(m[0]) : NaN;
+}
+
+const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
+
+// Fill % = how ABNORMAL the value is, so every flagged metric reads as a strong
+// bar and the length tracks severity (color already shows direction: warm=high,
+// cool=low). Inside the normal band the bar stays modest; the further past the
+// nearest bound the value sits, the fuller the bar — in either direction.
+function fillPercent(value, normalStr) {
+  const val = parseValue(value);
+  const range = parseRange(normalStr);
+  if (!isFinite(val) || !range || range.high <= range.low) return 60; // safe default
+  const { low, high } = range;
+  const span = high - low || 1;
+  if (val >= low && val <= high) {
+    return Math.round(22 + ((val - low) / span) * 23);   // within normal: 22-45%
+  }
+  const bound = val > high ? high : low;                 // nearest normal bound
+  const dist = val > high ? val - high : low - val;      // distance outside it
+  const rel = dist / (Math.abs(bound) || span);          // relative to that bound
+  return Math.round(clamp(58 + rel * 85, 58, 100));      // abnormal: 58-100%
+}
+
 function ResultView({ result, onAnother, onReset }) {
-  const riskClass = `risk-${result.risk?.toLowerCase()}`;
+  const riskClass = `risk-${(result.risk || 'low').toLowerCase()}`;
   return (
     <div className="result">
       <div className="glass result-hero">
@@ -336,14 +354,14 @@ function ResultView({ result, onAnother, onReset }) {
           <h3 className="result-pred">{result.prediction}</h3>
           <p className="result-meta">
             {result.disease_label} · model confidence{' '}
-            <strong>{Math.round(result.confidence * 100)}%</strong>
+            <strong>{Math.round((result.confidence || 0) * 100)}%</strong>
           </p>
         </div>
       </div>
 
       {result.key_factors?.length > 0 && (
         <div className="glass result-factors">
-          <h3>What drove this</h3>
+          <h3>What stood out</h3>
           <ul className="factor-list">
             {result.key_factors.map((f) => (
               <li key={f.feature} className="factor">
@@ -354,14 +372,50 @@ function ResultView({ result, onAnother, onReset }) {
                   </span>
                 </div>
                 <div className="factor-bar">
-                  <span
-                    className={`factor-fill ${f.z > 0 ? 'up' : 'down'}`}
-                    style={{ width: `${Math.min(100, Math.abs(f.z) * 33)}%` }}
-                  />
+                  <span className={`factor-fill ${f.direction?.includes('higher') ? 'up' : 'down'}`}
+                    style={{ width: `${fillPercent(f.value, f.normal)}%` }} />
                 </div>
-                <span className="factor-note">{f.direction}</span>
+                <span className="factor-note">{f.direction}{f.normal ? ` · normal ${f.normal}` : ''}</span>
               </li>
             ))}
+          </ul>
+        </div>
+      )}
+
+      {result.shap?.available && result.shap.top?.length > 0 && (
+        <div className="glass result-shap">
+          <h3><HiOutlineSparkles /> Why the model decided this</h3>
+          <p className="shap-caption">
+            SHAP shows how each value pushed the model&apos;s risk estimate
+            up (warm, to the right) or down (cool, to the left).
+          </p>
+          <ul className="shap-list">
+            {(() => {
+              const top = result.shap.top;
+              const maxAbs = Math.max(...top.map((s) => Math.abs(s.contribution))) || 1;
+              return top.map((s) => {
+                const w = (Math.abs(s.contribution) / maxAbs) * 50; // half-track
+                const up = s.direction === 'increases';
+                return (
+                  <li key={s.feature} className="shap-row">
+                    <span className="shap-label">
+                      {s.label}
+                      {s.value != null && s.value !== '' && (
+                        <em> {String(s.value)}{s.unit ? ` ${s.unit}` : ''}</em>
+                      )}
+                    </span>
+                    <div className="shap-track">
+                      <span className="shap-axis" />
+                      <span
+                        className={`shap-bar ${up ? 'up' : 'down'}`}
+                        style={up ? { left: '50%', width: `${w}%` } : { right: '50%', width: `${w}%` }}
+                      />
+                    </div>
+                    <span className={`shap-tag ${up ? 'up' : 'down'}`}>{up ? '↑ risk' : '↓ risk'}</span>
+                  </li>
+                );
+              });
+            })()}
           </ul>
         </div>
       )}
@@ -373,11 +427,9 @@ function ResultView({ result, onAnother, onReset }) {
 
       <div className="result-actions">
         <button className="btn btn-primary" onClick={onAnother} type="button">
-          <HiOutlineArrowPath /> Assess another condition
+          <HiOutlineArrowPath /> Adjust &amp; re-run
         </button>
-        <button className="btn btn-ghost" onClick={onReset} type="button">
-          New report
-        </button>
+        <button className="btn btn-ghost" onClick={onReset} type="button">New report</button>
       </div>
 
       <p className="result-disclaimer">

@@ -108,6 +108,40 @@ def split_bp(bp):
     )
 
 
+def encode_gender(g):
+    """Map gender/sex to the numeric code the v2 models were trained on
+    (male -> 1, female -> 0). Accepts strings or already-numeric values."""
+    if g is None:
+        return 1
+    if isinstance(g, (int, float)):
+        return int(g)
+    s = str(g).strip().lower()
+    if s.startswith("m"):
+        return 1
+    if s.startswith("f"):
+        return 0
+    return 1
+
+
+def systolic_bp(bp):
+    """Return the systolic component as a number. Handles '140/90', a bare
+    number, or None (falls back to the default systolic value)."""
+    if bp is None:
+        return DEFAULT_VALUES["SystolicBP"]
+    if isinstance(bp, (int, float)):
+        return float(bp)
+    text = str(bp)
+    if "/" in text:
+        try:
+            return float(text.split("/")[0].strip())
+        except ValueError:
+            return DEFAULT_VALUES["SystolicBP"]
+    try:
+        return float(text)
+    except ValueError:
+        return DEFAULT_VALUES["SystolicBP"]
+
+
 # ======================================================
 # Diabetes
 # ======================================================
@@ -126,7 +160,7 @@ def prepare_diabetes_features(report, lab):
 
         "Age": get_value(report.get("age"), 40),
 
-        "Gender": get_value(report.get("gender"), "Male"),
+        "Gender": encode_gender(report.get("gender")),
 
         "Pregnancies": DEFAULT_VALUES["Pregnancies"],
 
@@ -142,10 +176,7 @@ def prepare_diabetes_features(report, lab):
 
         "BMI": bmi,
 
-        "BloodPressure": get_value(
-            lab.get("blood_pressure"),
-            DEFAULT_VALUES["BloodPressure"]
-        ),
+        "BloodPressure": systolic_bp(lab.get("blood_pressure")),
 
         "Insulin": DEFAULT_VALUES["Insulin"],
 
@@ -182,7 +213,7 @@ def prepare_heart_features(report, lab):
 
         "Age": get_value(report.get("age"), 40),
 
-        "Sex": get_value(report.get("gender"), "Male"),
+        "Sex": encode_gender(report.get("gender")),
 
         "Height": get_value(
             report.get("height"),
@@ -266,10 +297,7 @@ def prepare_ckd_features(report, lab):
 
         "Age": get_value(report.get("age"), 40),
 
-        "BloodPressure": get_value(
-            lab.get("blood_pressure"),
-            DEFAULT_VALUES["BloodPressure"]
-        ),
+        "BloodPressure": systolic_bp(lab.get("blood_pressure")),
 
         "SpecificGravity": get_value(
             lab.get("specific_gravity"),
